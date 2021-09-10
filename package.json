@@ -1,0 +1,23 @@
+{
+  "name": "ectsm-node",
+  "version": "1.0.0",
+  "description": "js version implementation of ECTSM",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ./test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daqnext/ECTSM-node.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/daqnext/ECTSM-node/issues"
+  },
+  "homepage": "https://github.com/daqnext/ECTSM-node#readme",
+  "dependencies": {
+    "ecies-geth": "^1.5.3",
+    "secp256k1": "^4.0.2"
+  }
+}
