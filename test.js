@@ -17,7 +17,7 @@ const ecies = require('ecies-geth');
     var prikey_string = "To6r0h//zNLAvl/NuS3KPmUhURJOJCt4hOb8K+/7R3s="
 
     const pubKey = ecc.StrBase64ToPublicKey(pubKeyStr)
-    const priKey = ecc.StringToPrivateKey(prikey_string)
+    const priKey = ecc.StrBase64ToPrivateKey(prikey_string)
 
     var encryptedmsg = await ecc.ECCEncrypt(pubKey, Buffer.from('msg to b'));
     var encryptedmsg_base64=encryptedmsg.toString("base64");
@@ -32,10 +32,3 @@ const ecies = require('ecies-geth');
 
 
 })();
-
-
-
-
-// ecies.encrypt(pubKey, Buffer.from('msg to b')).then(function(encrypted) {
-//     console.log("encrypted:",encrypted.toString("base64"));
-// });

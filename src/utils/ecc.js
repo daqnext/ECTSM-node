@@ -22,7 +22,7 @@ ecc.PrivateKeyToString=function(PrivateKey){
 }
 
 
-ecc.StringToPrivateKey=function(priKeyStrBase64) {
+ecc.StrBase64ToPrivateKey=function(priKeyStrBase64) {
 	try {
 		return Buffer.from(priKeyStrBase64, "base64")
 	} catch (error) {
