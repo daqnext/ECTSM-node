@@ -2,7 +2,7 @@
   "name": "ectsm-node",
   "version": "1.0.0",
   "description": "js version implementation of ECTSM",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "node ./test.js"
   },
@@ -18,6 +18,12 @@
   "homepage": "https://github.com/daqnext/ECTSM-node#readme",
   "dependencies": {
     "ecies-geth": "^1.5.3",
+    "node-cache": "^5.1.2",
     "secp256k1": "^4.0.2"
+  },
+  "devDependencies": {
+    "koa": "^2.13.1",
+    "koa-body": "^4.2.0",
+    "koa-router": "^10.1.1"
   }
 }
