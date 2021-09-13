@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 16:34:56
- * @LastEditTime: 2021-09-13 16:51:25
+ * @LastEditTime: 2021-09-13 20:31:25
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/test/httpservertest.js
@@ -11,6 +11,7 @@
 const Koa =require("koa")
 const Router =require("koa-router")
 const koaBody =require("koa-body")
+const cors =require('koa2-cors')
 
 //ECTServer
 const {ECTHttpServer,ecthttp} = require("../src/index")
@@ -92,6 +93,10 @@ function StartKoaServer() {
 
         ctx.body = sendData;
     });
+
+    app.use(cors({
+        exposeHeaders: ['ecttimestamp', 'ecs','Ecttimestamp', 'Ecs'],
+    }))
     app.use(router.routes());
     app.listen(8080);
 }

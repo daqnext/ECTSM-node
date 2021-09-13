@@ -1,39 +1,39 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 16:31:18
- * @LastEditTime: 2021-09-13 16:55:54
+ * @LastEditTime: 2021-09-13 20:33:17
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/http/http.js
  */
 
 
-const aes = require("../utils/aes")
+const {aes} = require("../utils/aes")
 
 const allowRequestTimeGapSec = 180;
 const allowServerClientTimeGap = 30;
 
 class ecthttp {
 
-    // static GenECTHeader(token, ecsKey, symmetricKey) {
-    //     const header = {};
-    //     if (token && token != "") {
-    //         header["Authorization"] = token;
-    //     }
+    static GenECTHeader(token, ecsKey, symmetricKey) {
+        const header = {};
+        if (token && token != "") {
+            header["Authorization"] = token;
+        }
 
-    //     //ecsKey
-    //     if (ecsKey != "") {
-    //         header["Ecs"] = ecsKey;
-    //     }
+        //ecsKey
+        if (ecsKey != "") {
+            header["Ecs"] = ecsKey;
+        }
 
-    //     //time stamp
-    //     const timeStampEncrypt = this.GenECTTimestamp(symmetricKey);
-    //     if (timeStampEncrypt!=null) {
-    //         header["Ecttimestamp"]=timeStampEncrypt
-    //     }
+        //time stamp
+        const timeStampEncrypt = this.GenECTTimestamp(symmetricKey);
+        if (timeStampEncrypt!=null) {
+            header["Ecttimestamp"]=timeStampEncrypt
+        }
 
-    //     return header;
-    // }
+        return header;
+    }
 
     static SetECTResponse(res, data, symmetricKey) {
         //set response header timestamp
@@ -62,7 +62,7 @@ class ecthttp {
 
     static DecryptTimestamp(header, symmetricKey) {
         //timeStamp
-        let timeS = header["ecttimestamp"];
+        let timeS = header["Ecttimestamp"]||header["ecttimestamp"];
         if (!timeS) {
             console.error("ecttimestamp not exist");
             return null;

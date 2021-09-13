@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-12 19:39:13
- * @LastEditTime: 2021-09-13 16:45:05
+ * @LastEditTime: 2021-09-13 20:16:58
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/http/server/server.js
@@ -9,9 +9,7 @@
 
 const { ecc } = require("../../utils/ecc");
 const NodeCache = require( "node-cache" );
-// import { ecthttp, allowRequestTimeGapSec } from "../http";
-const ecthttp = require("../http").ecthttp
-const allowRequestTimeGapSec = require("../http").allowRequestTimeGapSec
+const {ecthttp ,allowRequestTimeGapSec}= require("../http")
 
 class ECTHttpServer {
     PrivateKey
@@ -25,7 +23,7 @@ class ECTHttpServer {
     async CheckHeader(header) {
         try {
             //ecs
-            const ecs = header["ecs"];
+            const ecs = header["ecs"]||header["Ecs"];
             if (!ecs) {
                 console.error("ecs not exist");
                 return null;
