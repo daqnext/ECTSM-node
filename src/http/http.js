@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 16:31:18
- * @LastEditTime: 2021-09-13 20:33:17
+ * @LastEditTime: 2021-09-13 23:02:30
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/http/http.js
@@ -23,13 +23,13 @@ class ecthttp {
 
         //ecsKey
         if (ecsKey != "") {
-            header["Ecs"] = ecsKey;
+            header["ecs"] = ecsKey;
         }
 
         //time stamp
         const timeStampEncrypt = this.GenECTTimestamp(symmetricKey);
         if (timeStampEncrypt!=null) {
-            header["Ecttimestamp"]=timeStampEncrypt
+            header["ecttimestamp"]=timeStampEncrypt
         }
 
         return header;
@@ -39,7 +39,7 @@ class ecthttp {
         //set response header timestamp
         const timeStampEncrypt = this.GenECTTimestamp(symmetricKey);
         if (timeStampEncrypt!=null) {
-            res.setHeader("Ecttimestamp",timeStampEncrypt)
+            res.setHeader("ecttimestamp",timeStampEncrypt)
         }
 
         //response data encrypt
@@ -62,7 +62,7 @@ class ecthttp {
 
     static DecryptTimestamp(header, symmetricKey) {
         //timeStamp
-        let timeS = header["Ecttimestamp"]||header["ecttimestamp"];
+        let timeS = header["ecttimestamp"];
         if (!timeS) {
             console.error("ecttimestamp not exist");
             return null;
@@ -90,7 +90,7 @@ class ecthttp {
 
     static DecryptBody(body, symmetricKey) {
         if (body==null||body=="") {
-            console.error("body not exist");
+            //console.error("body not exist");
             return null;
         }
         //decrypt

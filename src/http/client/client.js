@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 17:12:04
- * @LastEditTime: 2021-09-13 22:28:51
+ * @LastEditTime: 2021-09-13 23:04:11
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/http/client/client.js
@@ -53,7 +53,7 @@ class ECTHttpClient {
             this.EcsKey = encrypted.toString("base64");
             return true;
         } catch (error) {
-            console.error(err);
+            console.error(error);
             return false
         }
     }
@@ -110,13 +110,6 @@ class ECTHttpClient {
 
             //decrypt response body
             const data = ecthttp.DecryptBody(response.data, this.SymmetricKey);
-            if (data == null) {
-                return {
-                    reqResp: response,
-                    decryptBody: null,
-                    err: "decrypt body error",
-                };
-            }
             return {
                 reqResp: response,
                 decryptBody: data,
@@ -196,13 +189,6 @@ class ECTHttpClient {
 
             //decrypt response body
             const data = ecthttp.DecryptBody(response.data, this.SymmetricKey);
-            if (data == null) {
-                return {
-                    reqResp: response,
-                    decryptBody: null,
-                    err: "decrypt body error",
-                };
-            }
             return {
                 reqResp: response,
                 decryptBody: data,

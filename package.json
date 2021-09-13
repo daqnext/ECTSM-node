@@ -1,6 +1,6 @@
 {
   "name": "ectsm-node",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "js version implementation of ECTSM",
   "main": "src/index.js",
   "scripts": {

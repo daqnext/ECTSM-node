@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-12 19:39:13
- * @LastEditTime: 2021-09-13 20:16:58
+ * @LastEditTime: 2021-09-13 23:02:02
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/http/server/server.js
@@ -23,7 +23,7 @@ class ECTHttpServer {
     async CheckHeader(header) {
         try {
             //ecs
-            const ecs = header["ecs"]||header["Ecs"];
+            const ecs = header["ecs"];
             if (!ecs) {
                 console.error("ecs not exist");
                 return null;
