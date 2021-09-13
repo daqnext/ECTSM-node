@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2021-09-12 19:27:27
- * @LastEditTime: 2021-09-13 19:41:42
- * @LastEditors: your name
+ * @LastEditTime: 2021-09-13 22:22:13
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/utils/ecc.js
  */

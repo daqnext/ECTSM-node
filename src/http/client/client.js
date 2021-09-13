@@ -1,46 +1,61 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 17:12:04
- * @LastEditTime: 2021-09-13 20:33:09
+ * @LastEditTime: 2021-09-13 22:28:51
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/http/client/client.js
  */
 
-const axios=require( "axios");
-const { utils } =require("../../utils/common");
+const axios = require("axios");
+const { utils } = require("../../utils/common");
 const { ecc } = require("../../utils/ecc");
-const { ecthttp, allowRequestTimeGapSec, allowServerClientTimeGap } = require("../http")
+const { ecthttp, allowRequestTimeGapSec, allowServerClientTimeGap } = require("../http");
 
 class ECTHttpClient {
-    PublicKeyUrl
-    SymmetricKey
-    PublicKey
-    EcsKey
+    PublicKeyUrl;
+    SymmetricKey;
+    PublicKey;
+    EcsKey;
 
     async Init(publicKeyUrl) {
-        this.PublicKeyUrl = publicKeyUrl;
+        try {
+            this.PublicKeyUrl = publicKeyUrl;
 
-        const response = await axios.get(publicKeyUrl);
-        //console.log(response);
+            const response = await axios.get(publicKeyUrl);
+            //console.log(response);
 
-        //time
-        const nowTime = Math.floor(Date.now() / 1000);
-        const timeGap = nowTime - response.data.UnixTime;
-        if (timeGap < -allowServerClientTimeGap || timeGap > allowServerClientTimeGap) {
-            return null;
-            //return nil, errors.New("time error")
+            //time
+            const nowTime = Math.floor(Date.now() / 1000);
+            const timeGap = nowTime - response.data.UnixTime;
+            if (timeGap < -allowServerClientTimeGap || timeGap > allowServerClientTimeGap) {
+                console.error("system error, please adjust");
+                return false;
+            }
+
+            //pubKey
+            let publicKey = ecc.StrBase64ToPublicKey(response.data.PublicKey);
+            if (publicKey == null) {
+                console.error("public key error");
+                return false;
+            }
+            this.PublicKey = publicKey;
+
+            //randKey
+            this.SymmetricKey = Buffer.from(utils.GenRandomKey(), "base64");
+
+            const encrypted = await ecc.ECCEncrypt(this.PublicKey, this.SymmetricKey);
+            if (encrypted == null) {
+                console.error("gen EcsKey error");
+                return false;
+            }
+
+            this.EcsKey = encrypted.toString("base64");
+            return true;
+        } catch (error) {
+            console.error(err);
+            return false
         }
-
-        //pubKey
-        this.PublicKey = Buffer.from(response.data.PublicKey, "base64");
-
-        //randKey
-        this.SymmetricKey = Buffer.from(utils.GenRandomKey(), "base64");
-
-        const encrypted = await ecc.ECCEncrypt(this.PublicKey, this.SymmetricKey);
-
-        this.EcsKey = encrypted.toString("base64");
     }
 
     async ECTGet(url, token = undefined, axiosConfig = {}) {
@@ -64,7 +79,7 @@ class ECTHttpClient {
             }
 
             const response = await axios.get(url, axiosConfig);
-            
+
             if (response.status != 200) {
                 return {
                     reqResp: response,
@@ -83,7 +98,6 @@ class ECTHttpClient {
                 };
             }
 
-            
             const nowTime = Math.floor(Date.now() / 1000);
             const timeGap = nowTime - timeStamp;
             if (timeGap < -allowRequestTimeGapSec || timeGap > allowRequestTimeGapSec) {
@@ -204,4 +218,4 @@ class ECTHttpClient {
     }
 }
 
-module.exports= {ECTHttpClient}
+module.exports = { ECTHttpClient };

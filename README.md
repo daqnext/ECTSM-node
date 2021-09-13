@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-09-12 19:27:27
- * @LastEditTime: 2021-09-13 20:43:53
+ * @LastEditTime: 2021-09-13 22:26:58
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/README.md
@@ -28,11 +28,11 @@ js version implementation of ECTSM
             //new ecthttpclient instance as a global single instance
             //publicKeyUrl endpoint to get unix time and public key form server
 
-            await hc.Init("http://127.0.0.1:8080/ectminfo");
-            if (hc == null) {
+            let success=await hc.Init("http://127.0.0.1:8080/ectminfo");
+            if (success == false) {
                 console.error("new ECTHttpClient error");
+                return
             }
-            console.log(hc)
 
             //get
             {
@@ -98,9 +98,10 @@ async function HttpRequest() {
     //new ecthttpclient instance as a global single instance
     //publicKeyUrl endpoint to get unix time and public key form server
 
-    await hc.Init("http://127.0.0.1:8080/ectminfo");
-    if (hc == null) {
+    let success=await hc.Init("http://127.0.0.1:8080/ectminfo");
+    if (success == false) {
         console.error("new ECTHttpClient error");
+        return
     }
 
     //get

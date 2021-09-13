@@ -1,22 +1,23 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 18:50:48
- * @LastEditTime: 2021-09-13 19:24:52
+ * @LastEditTime: 2021-09-13 22:32:02
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/test/httpclienttest.js
  */
 
-const { ECTHttpClient } = require("../src/httpclient");
+const { ECTHttpClient } = require("../src/index");
 const hc = new ECTHttpClient();
 
 async function HttpRequest() {
     //new ecthttpclient instance as a global single instance
     //publicKeyUrl endpoint to get unix time and public key form server
 
-    await hc.Init("http://127.0.0.1:8080/ectminfo");
-    if (hc == null) {
+    let success=await hc.Init("http://127.0.0.1:8080/ectminfo");
+    if (success == false) {
         console.error("new ECTHttpClient error");
+        return
     }
 
     //get
