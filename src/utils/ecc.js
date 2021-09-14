@@ -1,6 +1,14 @@
+/*
+ * @Author: your name
+ * @Date: 2021-09-12 19:27:27
+ * @LastEditTime: 2021-09-13 22:22:13
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: /ECTSM-node/src/utils/ecc.js
+ */
 const secp256k1= require('secp256k1')
 const ecies = require('ecies-geth');
-const crypto = require('crypto');
+const crypto = require('crypto-browserify');
 
 var ecc={} 
 
