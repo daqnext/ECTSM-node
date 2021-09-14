@@ -106,11 +106,10 @@ class ECTHttpClient {
 
             //decrypt response body
             let data = ecthttp.DecryptBody(response.data, this.SymmetricKey);
-
             //auto decoding
             try {
-                jsondata=JSON.parse(data);
-                data=jsondata
+                let jsondata=JSON.parse(data);
+                data=jsondata;
             } catch (e) { }
 
             return {
@@ -195,8 +194,8 @@ class ECTHttpClient {
 
             //auto decoding
             try {
-                jsondata=JSON.parse(data);
-                data=jsondata
+                let jsondata=JSON.parse(data);
+                data=jsondata;
             } catch (e) { }
 
             return {
