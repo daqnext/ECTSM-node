@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-09-12 19:27:27
- * @LastEditTime: 2021-09-14 11:12:30
+ * @LastEditTime: 2021-09-14 13:19:36
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/README.md
@@ -193,7 +193,7 @@ function StartKoaServer() {
         };
 
         ctx.res.getHeaders;
-        const sendData = ecthttp.SetECTResponse(ctx.res, data, v.symmetricKey);
+        const sendData = ecthttp.ECTResponse(ctx.res, data, v.symmetricKey);
         console.log("response data:", sendData);
 
         ctx.body = sendData;
@@ -222,7 +222,7 @@ function StartKoaServer() {
             Msg: "post success",
             Data: null,
         };
-        const sendData = ecthttp.SetECTResponse(ctx.res, data, v.symmetricKey);
+        const sendData = ecthttp.ECTResponse(ctx.res, data, v.symmetricKey);
         console.log("response data:", sendData);
 
         ctx.body = sendData;

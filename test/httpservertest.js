@@ -65,7 +65,7 @@ function StartKoaServer() {
         };
 
         ctx.res.getHeaders;
-        const sendData = ecthttp.SetECTResponse(ctx.res, data, v.symmetricKey);
+        const sendData = ecthttp.ECTResponse(ctx.res, data, v.symmetricKey);
         console.log("response data:", sendData);
 
         ctx.body = sendData;
@@ -94,7 +94,7 @@ function StartKoaServer() {
             Msg: "post success",
             Data: null,
         };
-        const sendData = ecthttp.SetECTResponse(ctx.res, data, v.symmetricKey);
+        const sendData = ecthttp.ECTResponse(ctx.res, data, v.symmetricKey);
         console.log("response data:", sendData);
 
         ctx.body = sendData;

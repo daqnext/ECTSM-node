@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 16:31:18
- * @LastEditTime: 2021-09-13 23:02:30
+ * @LastEditTime: 2021-09-14 13:19:11
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/http/http.js
@@ -35,7 +35,7 @@ class ecthttp {
         return header;
     }
 
-    static SetECTResponse(res, data, symmetricKey) {
+    static ECTResponse(res, data, symmetricKey) {
         //set response header timestamp
         const timeStampEncrypt = this.GenECTTimestamp(symmetricKey);
         if (timeStampEncrypt!=null) {
