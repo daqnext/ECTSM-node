@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 17:12:04
- * @LastEditTime: 2021-09-13 23:04:11
+ * @LastEditTime: 2021-09-14 17:10:15
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/http/client/client.js
@@ -42,7 +42,7 @@ class ECTHttpClient {
             this.PublicKey = publicKey;
 
             //randKey
-            this.SymmetricKey = Buffer.from(utils.GenRandomKey(), "base64");
+            this.SymmetricKey = Buffer.from(utils.GenRandomKey());
 
             const encrypted = await ecc.ECCEncrypt(this.PublicKey, this.SymmetricKey);
             if (encrypted == null) {

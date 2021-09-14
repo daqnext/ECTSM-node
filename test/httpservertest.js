@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 16:34:56
- * @LastEditTime: 2021-09-14 12:45:45
+ * @LastEditTime: 2021-09-14 17:25:39
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/test/httpservertest.js
@@ -100,9 +100,11 @@ function StartKoaServer() {
         ctx.body = sendData;
     });
 
+    //cors for html use
     app.use(cors({
         exposeHeaders: ['ecttimestamp', 'ecs','Ecttimestamp', 'Ecs'],
     }))
+    
     app.use(router.routes());
     app.listen(8080);
     console.log("server start:8080");

@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-09-12 19:27:27
- * @LastEditTime: 2021-09-14 13:19:36
+ * @LastEditTime: 2021-09-14 17:27:07
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/README.md
@@ -146,6 +146,7 @@ const Koa =require("koa")
 const Router =require("koa-router")
 const koaBody =require("koa-body")
 const cors =require('koa2-cors')
+const os =require("os")
 
 //ECTServer
 const {ECTHttpServer,ecthttp} = require("ectsm-node")
@@ -161,6 +162,7 @@ function InitEctHttpServer() {
         console.log("InitEctHttpServer error");
         os.exit(1)
     }
+}
 
 function StartKoaServer() {
     const app = new Koa();
@@ -232,11 +234,14 @@ function StartKoaServer() {
         ctx.body = sendData;
     });
 
+    //cors for html use
     app.use(cors({
         exposeHeaders: ['ecttimestamp', 'ecs','Ecttimestamp', 'Ecs'],
     }))
+    
     app.use(router.routes());
     app.listen(8080);
+    console.log("server start:8080");
 }
 
 async function main() {

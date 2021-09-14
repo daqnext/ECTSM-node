@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 16:31:18
- * @LastEditTime: 2021-09-14 14:09:50
+ * @LastEditTime: 2021-09-14 17:24:39
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/http/http.js
@@ -53,7 +53,7 @@ class ecthttp {
 
     static GenECTTimestamp( symmetricKey) {
         const nowTime = Math.floor(Date.now() / 1000);
-        const encrypted = aes.AESEncrypt(nowTime + "", symmetricKey.toString("base64"));
+        const encrypted = aes.AESEncrypt(nowTime + "", symmetricKey.toString());
         if (!encrypted) {
             return null;
         }
@@ -62,7 +62,7 @@ class ecthttp {
 
     static DecryptTimestamp(header, symmetricKey) {
         //timeStamp
-        let timeS = header["ecttimestamp"]||header["Ecttimestamp"];
+        let timeS = header["Ecttimestamp"]||header["ecttimestamp"];
         if (!timeS) {
             console.error("ecttimestamp not exist");
             return null;
@@ -78,13 +78,12 @@ class ecthttp {
             return null;
         }
 
-        const timeStamp = aes.AESDecrypt(timeStampBase64Str, symmetricKey.toString("base64"));
+        const timeStamp = aes.AESDecrypt(timeStampBase64Str, symmetricKey.toString());
         if (timeStamp==null) {
             console.error("AESDecrypt ecttimestamp error");
             return null;
         }
-        const str = timeStamp.substring(1, timeStamp.length - 1);
-        const sendTime = parseInt(str);
+        const sendTime = parseInt(timeStamp);
         return sendTime;
     }
 
@@ -94,7 +93,7 @@ class ecthttp {
             return null;
         }
         //decrypt
-        const bufDecrypted = aes.AESDecrypt(body, symmetricKey.toString("base64"));
+        const bufDecrypted = aes.AESDecrypt(body, symmetricKey.toString());
         if (bufDecrypted == null) {
             console.error("AESDecrypt postbody error");
             return null;
@@ -111,7 +110,7 @@ class ecthttp {
             return null;
         }
 
-        const sendData = aes.AESEncrypt(data, symmetricKey.toString("base64"));
+        const sendData = aes.AESEncrypt(data, symmetricKey.toString());
         if (!sendData) {
             console.error("AESEncrypt postbody error");
             return null;
