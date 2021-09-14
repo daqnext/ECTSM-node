@@ -45,8 +45,15 @@ class ecthttp {
             res.setHeader("ecttimestamp",timeStampEncrypt)
         }
 
+        let datastr="";
+        if (typeof data === 'string' || data instanceof String){
+            datastr=data;
+        }else{
+            datastr=JSON.stringify(data)
+        }
+
         //response data encrypt
-        const sendData = this.EncryptBody(data, symmetricKey);
+        const sendData = this.EncryptBody(datastr, symmetricKey);
         if (!sendData) {
             return null;
         }
@@ -86,6 +93,7 @@ class ecthttp {
         return sendTime;
     }
 
+    
     static DecryptBody(body, symmetricKey) {
         if (body==null||body=="") {
             return null;
@@ -98,16 +106,17 @@ class ecthttp {
         return bufDecrypted;
     }
 
+    //input body must be string type
     static EncryptBody(body, symmetricKey) {
         if (body==null) {
             return null;
         }
-        const data = JSON.stringify(body);
-        if (!data) {
-            return null;
-        }
+        // const data = JSON.stringify(body);
+        // if (!data) {
+        //     return null;
+        // }
 
-        const sendData = aes.AESEncrypt(data, symmetricKey.toString());
+        const sendData = aes.AESEncrypt(body, symmetricKey.toString());
         if (!sendData) {
             return null;
         }

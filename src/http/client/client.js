@@ -138,7 +138,14 @@ class ECTHttpClient {
                 };
             }
 
-            const bodySend = ecthttp.EncryptBody(obj, this.SymmetricKey);
+            let objstr="";
+            if (typeof obj === 'string' || obj instanceof String){
+                objstr=obj;
+            }else{
+                objstr=JSON.stringify(obj)
+            }
+
+            const bodySend = ecthttp.EncryptBody(objstr, this.SymmetricKey);
             if (bodySend == null) {
                 return {
                     reqResp: null,
