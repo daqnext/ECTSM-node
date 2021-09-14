@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 16:34:56
- * @LastEditTime: 2021-09-13 20:31:25
+ * @LastEditTime: 2021-09-14 12:45:45
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/test/httpservertest.js
@@ -12,6 +12,7 @@ const Koa =require("koa")
 const Router =require("koa-router")
 const koaBody =require("koa-body")
 const cors =require('koa2-cors')
+const os =require("os")
 
 //ECTServer
 const {ECTHttpServer,ecthttp} = require("../src/index")
@@ -21,7 +22,12 @@ const publicKeyBase64Str = "BJJlxQFcPuVTjaB/PvbqmN0py98C2iScUQlvpRUm+kpAgqJmnofC
 let hs = null;
 
 function InitEctHttpServer() {
+    console.log("InitEctHttpServer");
     hs = new ECTHttpServer(privateKeyBase64Str);
+    if (hs==null) {
+        console.log("InitEctHttpServer error");
+        os.exit(1)
+    }
 }
 
 function StartKoaServer() {
@@ -99,6 +105,7 @@ function StartKoaServer() {
     }))
     app.use(router.routes());
     app.listen(8080);
+    console.log("server start:8080");
 }
 
 async function main() {

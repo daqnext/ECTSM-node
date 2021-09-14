@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-12 19:39:13
- * @LastEditTime: 2021-09-13 23:02:02
+ * @LastEditTime: 2021-09-14 12:46:47
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/http/server/server.js
@@ -16,7 +16,12 @@ class ECTHttpServer {
     Cache
 
     constructor(privateKeyBase64Str) {
-        this.PrivateKey = ecc.StrBase64ToPrivateKey(privateKeyBase64Str);
+        const privkey= ecc.StrBase64ToPrivateKey(privateKeyBase64Str);
+        if (!privkey) {
+            console.error("init private key error");
+            return null
+        }
+        this.PrivateKey = privkey
         this.Cache = new NodeCache();
     }
 
