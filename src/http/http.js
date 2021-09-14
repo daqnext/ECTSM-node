@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 16:31:18
- * @LastEditTime: 2021-09-14 13:19:11
+ * @LastEditTime: 2021-09-14 14:09:50
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/http/http.js
@@ -62,7 +62,7 @@ class ecthttp {
 
     static DecryptTimestamp(header, symmetricKey) {
         //timeStamp
-        let timeS = header["ecttimestamp"];
+        let timeS = header["ecttimestamp"]||header["Ecttimestamp"];
         if (!timeS) {
             console.error("ecttimestamp not exist");
             return null;

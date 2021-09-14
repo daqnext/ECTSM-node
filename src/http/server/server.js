@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-12 19:39:13
- * @LastEditTime: 2021-09-14 12:46:47
+ * @LastEditTime: 2021-09-14 14:10:32
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/http/server/server.js
@@ -21,6 +21,7 @@ class ECTHttpServer {
             console.error("init private key error");
             return null
         }
+        new Buffer()
         this.PrivateKey = privkey
         this.Cache = new NodeCache();
     }
@@ -28,7 +29,7 @@ class ECTHttpServer {
     async CheckHeader(header) {
         try {
             //ecs
-            const ecs = header["ecs"];
+            const ecs = header["ecs"]||header["Ecs"];
             if (!ecs) {
                 console.error("ecs not exist");
                 return null;
