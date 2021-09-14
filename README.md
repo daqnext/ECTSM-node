@@ -37,19 +37,17 @@ js version implementation of ECTSM
             {
                 const url = "http://127.0.0.1:8080/test/get";
                 //send request with default timeout and token 'usertoken'
-                const {
-                    reqResp,
-                    decryptBody,
-                    err
-                } = await hc.ECTGet(url, "usertoken", {
+                const { reqResp, decryptBody, err } = await hc.ECTGet(url, "usertoken", {
                     timeout: 30000
                 });
 
                 if (err != null) {
                     console.log("err", err);
+                }else{
+                    console.log("status", reqResp.status);
+                    console.log("get request reponse", decryptBody);
                 }
-                console.log("status", reqResp.status);
-                console.log("get request reponse", decryptBody);
+                
             }
 
             //post
@@ -62,17 +60,14 @@ js version implementation of ECTSM
                 };
 
                 const url = "http://127.0.0.1:8080/test/post";
-                const {
-                    reqResp,
-                    decryptBody,
-                    err
-                } = await hc.ECTPost(url, sendData, "usertoken");
+                const { reqResp, decryptBody, err} = await hc.ECTPost(url, sendData, "usertoken");
 
                 if (err != null) {
                     console.log("err", err);
-                }
-                console.log("status", reqResp.status);
-                console.log("get request reponse", decryptBody);
+                }else{
+                    console.log("status", reqResp.status);
+                    console.log("get request reponse", decryptBody);
+                }      
             }
         }
 
