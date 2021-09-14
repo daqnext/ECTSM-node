@@ -23,20 +23,17 @@ class ECTHttpClient {
             this.PublicKeyUrl = publicKeyUrl;
 
             const response = await axios.get(publicKeyUrl);
-            //console.log(response);
 
             //time
             const nowTime = Math.floor(Date.now() / 1000);
             const timeGap = nowTime - response.data.UnixTime;
             if (timeGap < -allowServerClientTimeGap || timeGap > allowServerClientTimeGap) {
-                console.error("system error, please adjust");
                 return false;
             }
 
             //pubKey
             let publicKey = ecc.StrBase64ToPublicKey(response.data.PublicKey);
             if (publicKey == null) {
-                console.error("public key error");
                 return false;
             }
             this.PublicKey = publicKey;
@@ -46,7 +43,6 @@ class ECTHttpClient {
 
             const encrypted = await ecc.ECCEncrypt(this.PublicKey, this.SymmetricKey);
             if (encrypted == null) {
-                console.error("gen EcsKey error");
                 return false;
             }
 
@@ -61,7 +57,7 @@ class ECTHttpClient {
     async ECTGet(url, token = undefined, axiosConfig = {}) {
         try {
             //header
-            const header = ecthttp.GenECTHeader(token, this.EcsKey, this.SymmetricKey);
+            const header = ecthttp.GenECTHeader(this.EcsKey, this.SymmetricKey,token);
             if (header == null) {
                 return {
                     reqResp: null,
@@ -127,7 +123,7 @@ class ECTHttpClient {
     async ECTPost(url, obj, token = undefined, axiosConfig = {}) {
         try {
             //header
-            const header = ecthttp.GenECTHeader(token, this.EcsKey, this.SymmetricKey);
+            const header = ecthttp.GenECTHeader(this.EcsKey, this.SymmetricKey,token);
             if (header == null) {
                 return {
                     reqResp: null,

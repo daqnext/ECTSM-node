@@ -111,9 +111,11 @@ async function HttpRequest() {
 
         if (err != null) {
             console.log("err", err);
+        }else{
+            console.log("status", reqResp.status);
+            console.log("get request reponse", decryptBody);
         }
-        console.log("status", reqResp.status);
-        console.log("get request reponse", decryptBody);
+        
     }
 
     //post
@@ -130,9 +132,11 @@ async function HttpRequest() {
 
         if (err != null) {
             console.log("err", err);
+        }else{
+            console.log("status", reqResp.status);
+            console.log("get request reponse", decryptBody);
         }
-        console.log("status", reqResp.status);
-        console.log("get request reponse", decryptBody);
+        
     }
 }
 

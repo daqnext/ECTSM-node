@@ -15,21 +15,24 @@ const allowServerClientTimeGap = 30;
 
 class ecthttp {
 
-    static GenECTHeader(token, ecsKey, symmetricKey) {
+    static GenECTHeader(ecsKey, symmetricKey,token) {
+
         const header = {};
-        if (token && token != "") {
-            header["Authorization"] = token;
+
+        if(!ecsKey||!symmetricKey){
+            return null;
         }
 
-        //ecsKey
-        if (ecsKey != "") {
-            header["ecs"] = ecsKey;
-        }
-
-        //time stamp
+        header["ecs"] = ecsKey;
         const timeStampEncrypt = this.GenECTTimestamp(symmetricKey);
         if (timeStampEncrypt!=null) {
-            header["ecttimestamp"]=timeStampEncrypt
+            header["ecttimestamp"]=timeStampEncrypt;
+        }else{
+            return null;
+        }
+
+        if (token && token != "") {
+            header["Authorization"] = token;
         }
 
         return header;
@@ -45,7 +48,6 @@ class ecthttp {
         //response data encrypt
         const sendData = this.EncryptBody(data, symmetricKey);
         if (!sendData) {
-            console.error("EncryptBody error,data:",data);
             return null;
         }
         return sendData;
@@ -64,7 +66,6 @@ class ecthttp {
         //timeStamp
         let timeS = header["Ecttimestamp"]||header["ecttimestamp"];
         if (!timeS) {
-            console.error("ecttimestamp not exist");
             return null;
         }
 
@@ -74,13 +75,11 @@ class ecthttp {
         } else if (typeof timeS == "object"&&timeS.length >0 &&timeS[0] != "") {
             timeStampBase64Str = timeS[0];
         }else{
-            console.error("ecttimestamp error");
             return null;
         }
 
         const timeStamp = aes.AESDecrypt(timeStampBase64Str, symmetricKey.toString());
         if (timeStamp==null) {
-            console.error("AESDecrypt ecttimestamp error");
             return null;
         }
         const sendTime = parseInt(timeStamp);
@@ -89,13 +88,11 @@ class ecthttp {
 
     static DecryptBody(body, symmetricKey) {
         if (body==null||body=="") {
-            //console.error("body not exist");
             return null;
         }
         //decrypt
         const bufDecrypted = aes.AESDecrypt(body, symmetricKey.toString());
         if (bufDecrypted == null) {
-            console.error("AESDecrypt postbody error");
             return null;
         }
         return bufDecrypted;
@@ -112,7 +109,6 @@ class ecthttp {
 
         const sendData = aes.AESEncrypt(data, symmetricKey.toString());
         if (!sendData) {
-            console.error("AESEncrypt postbody error");
             return null;
         }
         return sendData;

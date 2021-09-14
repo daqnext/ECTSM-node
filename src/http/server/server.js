@@ -18,7 +18,6 @@ class ECTHttpServer {
     constructor(privateKeyBase64Str) {
         const privkey= ecc.StrBase64ToPrivateKey(privateKeyBase64Str);
         if (!privkey) {
-            console.error("init private key error");
             return null
         }
         this.PrivateKey = privkey
@@ -30,7 +29,6 @@ class ECTHttpServer {
             //ecs
             const ecs = header["ecs"]||header["Ecs"];
             if (!ecs) {
-                console.error("ecs not exist");
                 return null;
             }
 
@@ -40,7 +38,6 @@ class ECTHttpServer {
             } else if (typeof ecs == "object" && ecs.length > 0 && ecs[0] != "") {
                 ecsBase64Str = ecs[0];
             } else {
-                console.error("ecs error");
                 return null;
             }
 
@@ -64,7 +61,6 @@ class ECTHttpServer {
             const nowTime = Math.floor(Date.now() / 1000);
             const timeGap = nowTime - timeStamp;
             if (timeGap < -allowRequestTimeGapSec || timeGap > allowRequestTimeGapSec) {
-                console.error("timestamp error, timeout");
                 return null;
             }
 
