@@ -105,7 +105,14 @@ class ECTHttpClient {
             }
 
             //decrypt response body
-            const data = ecthttp.DecryptBody(response.data, this.SymmetricKey);
+            let data = ecthttp.DecryptBody(response.data, this.SymmetricKey);
+
+            //json request
+            let content_type = response.headers["Content-Type"]||response.headers["content-type"];
+            if(content_type!=''&&content_type.includes("json")){
+                data=JSON.parse(data)
+            }
+
             return {
                 reqResp: response,
                 decryptBody: data,
@@ -184,7 +191,13 @@ class ECTHttpClient {
             }
 
             //decrypt response body
-            const data = ecthttp.DecryptBody(response.data, this.SymmetricKey);
+            let data = ecthttp.DecryptBody(response.data, this.SymmetricKey);
+
+            let content_type = response.headers["Content-Type"]||response.headers["content-type"];
+            if(content_type!=''&&content_type.includes("json")){
+                data=JSON.parse(data)
+            }
+
             return {
                 reqResp: response,
                 decryptBody: data,
