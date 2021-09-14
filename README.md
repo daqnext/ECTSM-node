@@ -155,8 +155,12 @@ const publicKeyBase64Str = "BJJlxQFcPuVTjaB/PvbqmN0py98C2iScUQlvpRUm+kpAgqJmnofC
 let hs = null;
 
 function InitEctHttpServer() {
+    console.log("InitEctHttpServer");
     hs = new ECTHttpServer(privateKeyBase64Str);
-}
+    if (hs==null) {
+        console.log("InitEctHttpServer error");
+        os.exit(1)
+    }
 
 function StartKoaServer() {
     const app = new Koa();
