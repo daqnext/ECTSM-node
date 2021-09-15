@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 16:34:56
- * @LastEditTime: 2021-09-15 18:06:07
+ * @LastEditTime: 2021-09-15 21:05:19
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/test/httpservertest.js
@@ -74,13 +74,15 @@ function StartKoaServer() {
             ctx.body = ECTResponseObj.err;
             return;
         }
-        console.log("response data:", ECTResponseObj.encryptedBody);
+        //console.log("response data:", ECTResponseObj.encryptedBody);
+        //console.log("response data to string:", ECTResponseObj.encryptedBody.toString());
+        console.log("response data base64:", ECTResponseObj.encryptedBody.toString("base64"));
 
         ctx.body = ECTResponseObj.encryptedBody.toString("base64");
     });
 
     router.post("/test/post", koaBody(), async (ctx) => {
-        console.log("body1",ctx.request.body)
+        //console.log("body1",ctx.request.body)
 
         //check header
         const v = await hs.HandlePost(ctx.headers,Buffer.from(ctx.request.body,"base64"));
@@ -110,7 +112,7 @@ function StartKoaServer() {
             ctx.body = ECTResponseObj.err;
             return;
         }
-        console.log("response data:", ECTResponseObj.encryptedBody);
+        console.log("response data:", ECTResponseObj.encryptedBody.toString("base64"));
 
         ctx.body = ECTResponseObj.encryptedBody.toString("base64");
     });

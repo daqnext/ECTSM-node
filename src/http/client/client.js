@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 17:12:04
- * @LastEditTime: 2021-09-15 18:03:17
+ * @LastEditTime: 2021-09-15 21:03:41
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/http/client/client.js
@@ -99,7 +99,7 @@ class ECTHttpClient {
         }
 
             //decrypt response body
-            //console.log(response.data);
+            //console.log("response data:",response.data);
             let dataBuf = ecthttp.DecryptBody(Buffer.from(response.data,"base64"), this.SymmetricKey);
 
             return {
