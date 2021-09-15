@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 16:31:18
- * @LastEditTime: 2021-09-15 17:27:05
+ * @LastEditTime: 2021-09-15 21:50:03
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/http/http.js
@@ -154,7 +154,7 @@ class ecthttp {
         return bufDecrypted;
     }
 
-    static ECTResponse(res, symmetricKey, data) {
+    static ECTResponse(res, symmetricKey, dataBuffer) {
         const v = this.EncryptAndSetECTMHeader(null, symmetricKey, null,res);
         if (v.err!=null) {
             return {
@@ -162,8 +162,16 @@ class ecthttp {
                 err:"encrypt response header error"
             }
         }
+
+        // if (typeof dataStr !="string") {
+        //     return {
+        //         encryptedBody:null,
+        //         err:"data must be a string"
+        //     }
+        // }
+        
         //body encrypt
-        const encryptedBody = this.EncryptBody(data, symmetricKey);
+        const encryptedBody = this.EncryptBody(dataBuffer, symmetricKey);
         if (!encryptedBody) {
             return {
                 encryptedBody:null,
@@ -171,100 +179,11 @@ class ecthttp {
             }
         }
         return {
-            encryptedBody:encryptedBody,
+            encryptedBodyBase64:encryptedBody.toString("base64"),
             err:null
         }
     }
 
-    // static GenECTHeader(ecsKey, symmetricKey, token) {
-    //     const header = {};
-
-    //     if (!ecsKey || !symmetricKey) {
-    //         return null;
-    //     }
-
-    //     header["ecs"] = ecsKey;
-    //     const timeStampEncrypt = this.GenECTTimestamp(symmetricKey);
-    //     if (timeStampEncrypt != null) {
-    //         header["ecttimestamp"] = timeStampEncrypt;
-    //     } else {
-    //         return null;
-    //     }
-
-    //     if (token && token != "") {
-    //         header["Authorization"] = token;
-    //     }
-
-    //     return header;
-    // }
-
-    // static ECTResponse(res, dataString, symmetricKey) {
-    //     //set response header timestamp
-    //     const timeStampEncrypt = this.GenECTTimestamp(symmetricKey);
-    //     if (timeStampEncrypt != null) {
-    //         res.setHeader("ecttimestamp", timeStampEncrypt);
-    //     }
-
-    //     //response data encrypt
-    //     const sendData = this.EncryptBody(dataString, symmetricKey);
-    //     if (!sendData) {
-    //         return null;
-    //     }
-    //     return sendData;
-    // }
-
-    // static GenECTTimestamp(symmetricKey) {
-    //     const nowTime = Math.floor(Date.now() / 1000);
-    //     const encrypted = aes.AESEncrypt(nowTime + "", symmetricKey.toString());
-    //     if (!encrypted) {
-    //         return null;
-    //     }
-    //     return encrypted;
-    // }
-
-    // static DecryptTimestamp(header, symmetricKey) {
-    //     //timeStamp
-    //     let timeS = header["Ecttimestamp"] || header["ecttimestamp"];
-    //     if (!timeS) {
-    //         return null;
-    //     }
-
-    //     let timeStampBase64Str = "";
-    //     if (typeof timeS == "string" && timeS != "") {
-    //         timeStampBase64Str = timeS;
-    //     } else if (typeof timeS == "object" && timeS.length > 0 && timeS[0] != "") {
-    //         timeStampBase64Str = timeS[0];
-    //     } else {
-    //         return null;
-    //     }
-
-    //     const timeStamp = aes.AESDecrypt(timeStampBase64Str, symmetricKey.toString());
-    //     if (timeStamp == null) {
-    //         return null;
-    //     }
-    //     const sendTime = parseInt(timeStamp);
-    //     return sendTime;
-    // }
-
-    // static DecryptBody(bodyStr, symmetricKey) {
-    //     if (bodyStr == null || bodyStr == "") {
-    //         return null;
-    //     }
-    //     //decrypt
-    //     const bufDecrypted = aes.AESDecryptBuffer(Buffer.from(bodyStr), symmetricKey.toString());
-    //     if (bufDecrypted == null) {
-    //         return null;
-    //     }
-    //     return bufDecrypted;
-    // }
-
-    // static EncryptBody(dataString, symmetricKey) {
-    //     const sendData = aes.AESEncryptBuffer(Buffer.from(dataString), symmetricKey.toString());
-    //     if (!sendData) {
-    //         return null;
-    //     }
-    //     return sendData;
-    // }
 }
 
 module.exports = { ecthttp, allowRequestTimeGapSec, allowServerClientTimeGap };

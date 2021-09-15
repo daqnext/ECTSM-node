@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 17:12:04
- * @LastEditTime: 2021-09-15 21:03:41
+ * @LastEditTime: 2021-09-15 21:30:24
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/http/client/client.js
@@ -10,7 +10,7 @@
 const axios = require("axios");
 const { utils } = require("../../utils/common");
 const { ecc } = require("../../utils/ecc");
-const { ecthttp, allowRequestTimeGapSec, allowServerClientTimeGap } = require("../http");
+const { ecthttp, allowServerClientTimeGap } = require("../http");
 
 class ECTHttpClient {
     PublicKeyUrl;
@@ -117,7 +117,7 @@ class ECTHttpClient {
     }
 
     // return(axios response,decryptBody,err)
-    async ECTPost(url, data, token = "", axiosConfig = {}) {
+    async ECTPost(url, dataString, token = "", axiosConfig = {}) {
         try {
             //header
             const {header,err} = ecthttp.EncryptAndSetECTMHeader(this.EcsKey, this.SymmetricKey,Buffer.from(token));
@@ -138,7 +138,7 @@ class ECTHttpClient {
             }
             
             
-            const EncryptedBody= ecthttp.EncryptBody(data, this.SymmetricKey)
+            const EncryptedBody= ecthttp.EncryptBody(Buffer.from(dataString), this.SymmetricKey)
             if (!EncryptedBody) {
                 return {
                     reqResp: null,

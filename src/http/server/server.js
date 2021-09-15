@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-12 19:39:13
- * @LastEditTime: 2021-09-15 16:21:03
+ * @LastEditTime: 2021-09-15 21:42:03
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/http/server/server.js
@@ -135,7 +135,7 @@ class ECTHttpServer {
             };
         }
 
-        const decryptBody = ecthttp.DecryptBody(body, symmetricKey);
+        const decryptBody = ecthttp.DecryptBody(Buffer.from(body,"base64"), symmetricKey);
         if (!decryptBody) {
             return {
                 symmetricKey: symmetricKey,
@@ -153,73 +153,6 @@ class ECTHttpServer {
         };
     }
 
-    // async CheckHeader(header) {
-    //     try {
-    //         //ecs
-    //         const ecs = header["ecs"] || header["Ecs"];
-    //         if (!ecs) {
-    //             return null;
-    //         }
-
-    //         let ecsBase64Str = "";
-    //         if (typeof ecs == "string" && ecs != "") {
-    //             ecsBase64Str = ecs;
-    //         } else if (typeof ecs == "object" && ecs.length > 0 && ecs[0] != "") {
-    //             ecsBase64Str = ecs[0];
-    //         } else {
-    //             return null;
-    //         }
-
-    //         //try to get from cache
-    //         let symmetricKey = this.Cache.get(ecsBase64Str);
-    //         if (symmetricKey == undefined) {
-    //             //not in cache
-    //             symmetricKey = await ecc.ECCDecrypt(this.PrivateKey, Buffer.from(ecsBase64Str, "base64"));
-    //             //check correct
-    //             if (!symmetricKey) {
-    //                 return null;
-    //             }
-    //             //set to cache
-    //             this.Cache.set(ecsBase64Str, symmetricKey, 3600);
-    //         }
-
-    //         const timeStamp = ecthttp.DecryptTimestamp(header, symmetricKey);
-    //         if (timeStamp == null) {
-    //             return null;
-    //         }
-    //         const nowTime = Math.floor(Date.now() / 1000);
-    //         const timeGap = nowTime - timeStamp;
-    //         if (timeGap < -allowRequestTimeGapSec || timeGap > allowRequestTimeGapSec) {
-    //             return null;
-    //         }
-
-    //         return {
-    //             symmetricKey: symmetricKey,
-    //             timeStamp: timeStamp,
-    //         };
-    //     } catch (error) {
-    //         console.error(error);
-    //         return null;
-    //     }
-    // }
-
-    // async HandlePost(header, bodyString) {
-    //     //header
-    //     const v = await this.CheckHeader(header);
-    //     if (v == null) {
-    //         return null;
-    //     }
-    //     const symmetricKey = v.symmetricKey;
-    //     const timeStamp = v.timeStamp;
-
-    //     const decryptedBody = ecthttp.DecryptBody(bodyString, symmetricKey);
-
-    //     return {
-    //         symmetricKey: symmetricKey,
-    //         timeStamp: timeStamp,
-    //         decryptedBody: decryptedBody,
-    //     };
-    // }
 }
 
 module.exports = { ECTHttpServer };

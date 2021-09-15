@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-09-12 19:27:27
- * @LastEditTime: 2021-09-14 17:27:07
+ * @LastEditTime: 2021-09-15 21:51:54
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/README.md
@@ -106,11 +106,9 @@ async function HttpRequest() {
 
         if (err != null) {
             console.log("err", err);
-        }else{
-            console.log("status", reqResp.status);
-            console.log("get request reponse", decryptBody);
         }
-        
+        console.log("status", reqResp.status);
+        console.log("get request reponse", decryptBody.toString());
     }
 
     //post
@@ -121,17 +119,16 @@ async function HttpRequest() {
             Phone: "123456789",
             Age: 18,
         };
+        let sendDataStr=JSON.stringify(sendData)
 
         const url = "http://127.0.0.1:8080/test/post";
-        const { reqResp, decryptBody, err } = await hc.ECTPost(url, sendData, "usertoken");
+        const { reqResp, decryptBody, err } = await hc.ECTPost(url, Buffer.from(sendDataStr), "usertoken");
 
         if (err != null) {
             console.log("err", err);
-        }else{
-            console.log("status", reqResp.status);
-            console.log("get request reponse", decryptBody);
         }
-        
+        console.log("status", reqResp.status);
+        console.log("get request reponse", decryptBody.toString());
     }
 }
 
@@ -157,9 +154,9 @@ let hs = null;
 function InitEctHttpServer() {
     console.log("InitEctHttpServer");
     hs = new ECTHttpServer(privateKeyBase64Str);
-    if (hs==null) {
+    if (hs == null) {
         console.log("InitEctHttpServer error");
-        os.exit(1)
+        os.exit(1);
     }
 }
 
@@ -178,8 +175,11 @@ function StartKoaServer() {
 
     router.get("/test/get", async (ctx) => {
         //check header
-        const v = await hs.CheckHeader(ctx.headers);
-        if (v == null) {
+        // symmetricKey: null,
+        //         token: null,
+        //         err: "ecs not exist",
+        const { symmetricKey, token, err } = await hs.HandleGet(ctx.headers);
+        if (err != null) {
             ctx.status = 500;
             ctx.body = "decrypt header error";
             return;
@@ -187,8 +187,8 @@ function StartKoaServer() {
 
         //do something
         //...
-        console.log("symmetricKey:", v.symmetricKey.toString("base64"));
-        console.log("timeStamp:", v.timeStamp);
+        console.log("symmetricKey:", symmetricKey.toString());
+        console.log("token:", token.toString());
 
         //responseData example
         const data = {
@@ -196,12 +196,19 @@ function StartKoaServer() {
             Msg: "post success",
             Data: null,
         };
+        const sendStr = JSON.stringify(data);
 
-        ctx.res.getHeaders;
-        const sendData = ecthttp.ECTResponse(ctx.res, data, v.symmetricKey);
-        console.log("response data:", sendData);
+        const ECTResponseObj = ecthttp.ECTResponse(ctx.res, symmetricKey, Buffer.from(sendStr));
+        if (ECTResponseObj.err != null) {
+            ctx.status = 500;
+            ctx.body = ECTResponseObj.err;
+            return;
+        }
+        //console.log("response data:", ECTResponseObj.encryptedBody);
+        //console.log("response data to string:", ECTResponseObj.encryptedBody.toString());
+        console.log("response data base64:", ECTResponseObj.encryptedBodyBase64);
 
-        ctx.body = sendData;
+        ctx.body = ECTResponseObj.encryptedBodyBase64;
     });
 
     router.post("/test/post", koaBody(), async (ctx) => {
@@ -217,9 +224,9 @@ function StartKoaServer() {
 
         //do something
         //...
-        console.log("symmetricKey:", v.symmetricKey.toString("base64"));
-        console.log("timeStamp:", v.timeStamp);
-        console.log("decryptedBody:", v.decryptedBody);
+        console.log("symmetricKey:", v.symmetricKey.toString());
+        console.log("token:", v.token.toString());
+        console.log("decryptedBody:", v.decryptedBody.toString());
 
         //responseData example
         const data = {
@@ -227,17 +234,26 @@ function StartKoaServer() {
             Msg: "post success",
             Data: null,
         };
-        const sendData = ecthttp.ECTResponse(ctx.res, data, v.symmetricKey);
-        console.log("response data:", sendData);
+        const sendStr = JSON.stringify(data);
 
-        ctx.body = sendData;
+        const ECTResponseObj = ecthttp.ECTResponse(ctx.res, v.symmetricKey, Buffer.from(sendStr));
+        if (ECTResponseObj.err != null) {
+            ctx.status = 500;
+            ctx.body = ECTResponseObj.err;
+            return;
+        }
+        console.log("response data:", ECTResponseObj.encryptedBodyBase64);
+
+        ctx.body = ECTResponseObj.encryptedBodyBase64;
     });
 
     //cors for html use
-    app.use(cors({
-        exposeHeaders: ['ecttimestamp', 'ecs','Ecttimestamp', 'Ecs'],
-    }))
-    
+    app.use(
+        cors({
+            exposeHeaders: ["Ectm_key", "ectm_key", "Ectm_time", "ectm_time", "Ectm_token", "ectm_token"],
+        })
+    );
+
     app.use(router.routes());
     app.listen(8080);
     console.log("server start:8080");

@@ -1,21 +1,21 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 16:34:56
- * @LastEditTime: 2021-09-15 21:05:19
+ * @LastEditTime: 2021-09-15 21:50:45
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/test/httpservertest.js
  */
 
 // koa for example
-const Koa =require("koa")
-const Router =require("koa-router")
-const koaBody =require("koa-body")
-const cors =require('koa2-cors')
-const os =require("os")
+const Koa = require("koa");
+const Router = require("koa-router");
+const koaBody = require("koa-body");
+const cors = require("koa2-cors");
+const os = require("os");
 
 //ECTServer
-const {ECTHttpServer,ecthttp} = require("../src/index")
+const { ECTHttpServer, ecthttp } = require("../src/index");
 
 const privateKeyBase64Str = "bhbb4EC96zx2uUsWDtSYivzaZUzdeDKMfn+dSV9VwUI=";
 const publicKeyBase64Str = "BJJlxQFcPuVTjaB/PvbqmN0py98C2iScUQlvpRUm+kpAgqJmnofCely42Hczgb7cqwTZtFTfPwm2ImdmDtvFMH4=";
@@ -24,9 +24,9 @@ let hs = null;
 function InitEctHttpServer() {
     console.log("InitEctHttpServer");
     hs = new ECTHttpServer(privateKeyBase64Str);
-    if (hs==null) {
+    if (hs == null) {
         console.log("InitEctHttpServer error");
-        os.exit(1)
+        os.exit(1);
     }
 }
 
@@ -48,8 +48,8 @@ function StartKoaServer() {
         // symmetricKey: null,
         //         token: null,
         //         err: "ecs not exist",
-        const {symmetricKey,token,err} = await hs.HandleGet(ctx.headers);
-        if (err!=null) {
+        const { symmetricKey, token, err } = await hs.HandleGet(ctx.headers);
+        if (err != null) {
             ctx.status = 500;
             ctx.body = "decrypt header error";
             return;
@@ -66,26 +66,26 @@ function StartKoaServer() {
             Msg: "post success",
             Data: null,
         };
-        const sendStr=JSON.stringify(data)
+        const sendStr = JSON.stringify(data);
 
-        const ECTResponseObj = ecthttp.ECTResponse(ctx.res, symmetricKey,Buffer.from(sendStr));
-        if (ECTResponseObj.err!=null) {
+        const ECTResponseObj = ecthttp.ECTResponse(ctx.res, symmetricKey, Buffer.from(sendStr));
+        if (ECTResponseObj.err != null) {
             ctx.status = 500;
             ctx.body = ECTResponseObj.err;
             return;
         }
         //console.log("response data:", ECTResponseObj.encryptedBody);
         //console.log("response data to string:", ECTResponseObj.encryptedBody.toString());
-        console.log("response data base64:", ECTResponseObj.encryptedBody.toString("base64"));
+        console.log("response data base64:", ECTResponseObj.encryptedBodyBase64);
 
-        ctx.body = ECTResponseObj.encryptedBody.toString("base64");
+        ctx.body = ECTResponseObj.encryptedBodyBase64;
     });
 
     router.post("/test/post", koaBody(), async (ctx) => {
         //console.log("body1",ctx.request.body)
 
         //check header
-        const v = await hs.HandlePost(ctx.headers,Buffer.from(ctx.request.body,"base64"));
+        const v = await hs.HandlePost(ctx.headers, ctx.request.body);
         if (v == null) {
             ctx.status = 500;
             ctx.body = "decrypt header error";
@@ -104,24 +104,26 @@ function StartKoaServer() {
             Msg: "post success",
             Data: null,
         };
-        const sendStr=JSON.stringify(data)
+        const sendStr = JSON.stringify(data);
 
-        const ECTResponseObj = ecthttp.ECTResponse(ctx.res, v.symmetricKey,Buffer.from(sendStr));
-        if (ECTResponseObj.err!=null) {
+        const ECTResponseObj = ecthttp.ECTResponse(ctx.res, v.symmetricKey, Buffer.from(sendStr));
+        if (ECTResponseObj.err != null) {
             ctx.status = 500;
             ctx.body = ECTResponseObj.err;
             return;
         }
-        console.log("response data:", ECTResponseObj.encryptedBody.toString("base64"));
+        console.log("response data:", ECTResponseObj.encryptedBodyBase64);
 
-        ctx.body = ECTResponseObj.encryptedBody.toString("base64");
+        ctx.body = ECTResponseObj.encryptedBodyBase64;
     });
 
     //cors for html use
-    app.use(cors({
-        exposeHeaders: ['ecttimestamp', 'ecs','Ecttimestamp', 'Ecs'],
-    }))
-    
+    app.use(
+        cors({
+            exposeHeaders: ["Ectm_key", "ectm_key", "Ectm_time", "ectm_time", "Ectm_token", "ectm_token"],
+        })
+    );
+
     app.use(router.routes());
     app.listen(8080);
     console.log("server start:8080");

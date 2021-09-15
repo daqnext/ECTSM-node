@@ -1,12 +1,12 @@
 /*
  * @Author: your name
  * @Date: 2021-09-12 19:30:27
- * @LastEditTime: 2021-09-15 16:59:20
+ * @LastEditTime: 2021-09-15 21:26:04
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/utils/aes.js
  */
-const crypto = require("crypto")
+const crypto = require("crypto-browserify")
 var aes={} 
 
 // aes.AESEncrypt=function(data, key) {
