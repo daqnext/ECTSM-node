@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 17:12:04
- * @LastEditTime: 2021-09-14 17:10:15
+ * @LastEditTime: 2021-09-15 18:03:17
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/http/client/client.js
@@ -14,9 +14,9 @@ const { ecthttp, allowRequestTimeGapSec, allowServerClientTimeGap } = require(".
 
 class ECTHttpClient {
     PublicKeyUrl;
-    SymmetricKey;
-    PublicKey;
-    EcsKey;
+    SymmetricKey; //Buffer
+    EcsKey; //Buffer
+    PublicKey; //Buffer
 
     async Init(publicKeyUrl) {
         try {
@@ -39,14 +39,14 @@ class ECTHttpClient {
             this.PublicKey = publicKey;
 
             //randKey
-            this.SymmetricKey = Buffer.from(utils.GenRandomKey());
+            this.SymmetricKey = Buffer.from(utils.GenSymmetricKey());
 
-            const encrypted = await ecc.ECCEncrypt(this.PublicKey, this.SymmetricKey);
-            if (encrypted == null) {
+            const encryptedEcs = await ecc.ECCEncrypt(this.PublicKey, this.SymmetricKey);
+            if (encryptedEcs == null) {
                 return false;
             }
 
-            this.EcsKey = encrypted.toString("base64");
+            this.EcsKey = encryptedEcs;
             return true;
         } catch (error) {
             console.error(error);
@@ -54,11 +54,12 @@ class ECTHttpClient {
         }
     }
 
-    async ECTGet(url, token = undefined, axiosConfig = {}) {
+    // return(axios response,decryptBody,err)
+    async ECTGet(url, token = "", axiosConfig = {}) {
         try {
             //header
-            const header = ecthttp.GenECTHeader(this.EcsKey, this.SymmetricKey,token);
-            if (header == null) {
+            const {header,err} = ecthttp.EncryptAndSetECTMHeader(this.EcsKey, this.SymmetricKey,Buffer.from(token));
+            if (err!=null) {
                 return {
                     reqResp: null,
                     decryptBody: null,
@@ -75,6 +76,7 @@ class ECTHttpClient {
             }
 
             const response = await axios.get(url, axiosConfig);
+            //console.log(response);
 
             if (response.status != 200) {
                 return {
@@ -85,36 +87,24 @@ class ECTHttpClient {
             }
 
             //check response timestamp
-            const timeStamp = ecthttp.DecryptTimestamp(response.headers, this.SymmetricKey);
-            if (timeStamp == null) {
+            {
+            const {err} = ecthttp.DecryptECTMHeader(response.headers, this.SymmetricKey);
+            if (err!=null) {
                 return {
                     reqResp: response,
                     decryptBody: null,
-                    err: "Decrypt timeStamp error",
+                    err: err,
                 };
             }
-
-            const nowTime = Math.floor(Date.now() / 1000);
-            const timeGap = nowTime - timeStamp;
-            if (timeGap < -allowRequestTimeGapSec || timeGap > allowRequestTimeGapSec) {
-                return {
-                    reqResp: response,
-                    decryptBody: null,
-                    err: "timestamp error, timeout",
-                };
-            }
+        }
 
             //decrypt response body
-            let data = ecthttp.DecryptBody(response.data, this.SymmetricKey);
-            //auto decoding
-            try {
-                let jsondata=JSON.parse(data);
-                data=jsondata;
-            } catch (e) { }
+            //console.log(response.data);
+            let dataBuf = ecthttp.DecryptBody(Buffer.from(response.data,"base64"), this.SymmetricKey);
 
             return {
                 reqResp: response,
-                decryptBody: data,
+                decryptBody: dataBuf,
                 err: null,
             };
         } catch (error) {
@@ -126,24 +116,16 @@ class ECTHttpClient {
         }
     }
 
-    async ECTPost(url, obj, token = undefined, axiosConfig = {}) {
+    // return(axios response,decryptBody,err)
+    async ECTPost(url, data, token = "", axiosConfig = {}) {
         try {
             //header
-            const header = ecthttp.GenECTHeader(this.EcsKey, this.SymmetricKey,token);
-            if (header == null) {
+            const {header,err} = ecthttp.EncryptAndSetECTMHeader(this.EcsKey, this.SymmetricKey,Buffer.from(token));
+            if (err!=null) {
                 return {
                     reqResp: null,
                     decryptBody: null,
                     err: "GenEctHeader header error",
-                };
-            }
-
-            const bodySend = ecthttp.EncryptBody(obj, this.SymmetricKey);
-            if (bodySend == null) {
-                return {
-                    reqResp: null,
-                    decryptBody: null,
-                    err: "EncryptBody error",
                 };
             }
 
@@ -154,12 +136,22 @@ class ECTHttpClient {
             if (!axiosConfig.timeout) {
                 axiosConfig.timeout = 30000;
             }
+            
+            
+            const EncryptedBody= ecthttp.EncryptBody(data, this.SymmetricKey)
+            if (!EncryptedBody) {
+                return {
+                    reqResp: null,
+                    decryptBody: null,
+                    err: "EncryptBody error",
+                };
+            }
 
             //
             axiosConfig.method = "post";
             axiosConfig.url = url;
             axiosConfig.headers["Content-Type"] = "text/plain";
-            axiosConfig.data = bodySend;
+            axiosConfig.data = EncryptedBody.toString("base64");
 
             const response = await axios(axiosConfig);
             if (response.status != 200) {
@@ -171,36 +163,23 @@ class ECTHttpClient {
             }
 
             //check response timestamp
-            const timeStamp = ecthttp.DecryptTimestamp(response.headers, this.SymmetricKey);
-            if (timeStamp == null) {
+            {
+            const {err} = ecthttp.DecryptECTMHeader(response.headers, this.SymmetricKey);
+            if (err!=null) {
                 return {
                     reqResp: response,
                     decryptBody: null,
-                    err: "Decrypt timeStamp error",
+                    err: err,
                 };
             }
-            const nowTime = Math.floor(Date.now() / 1000);
-            const timeGap = nowTime - timeStamp;
-            if (timeGap < -allowRequestTimeGapSec || timeGap > allowRequestTimeGapSec) {
-                return {
-                    reqResp: response,
-                    decryptBody: null,
-                    err: "timestamp error, timeout",
-                };
-            }
+        }
 
             //decrypt response body
-            let data = ecthttp.DecryptBody(response.data, this.SymmetricKey);
-
-            //auto decoding
-            try {
-                let jsondata=JSON.parse(data);
-                data=jsondata;
-            } catch (e) { }
+            let dataBuf = ecthttp.DecryptBody(Buffer.from(response.data,"base64"), this.SymmetricKey);
 
             return {
                 reqResp: response,
-                decryptBody: data,
+                decryptBody: dataBuf,
                 err: null,
             };
         } catch (error) {

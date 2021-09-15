@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 18:50:48
- * @LastEditTime: 2021-09-14 16:37:27
+ * @LastEditTime: 2021-09-15 18:06:52
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/test/httpclienttest.js
@@ -30,7 +30,7 @@ async function HttpRequest() {
             console.log("err", err);
         }
         console.log("status", reqResp.status);
-        console.log("get request reponse", decryptBody);
+        console.log("get request reponse", decryptBody.toString());
     }
 
     //post
@@ -41,15 +41,16 @@ async function HttpRequest() {
             Phone: "123456789",
             Age: 18,
         };
+        let sendDataStr=JSON.stringify(sendData)
 
         const url = "http://127.0.0.1:8080/test/post";
-        const { reqResp, decryptBody, err } = await hc.ECTPost(url, sendData, "usertoken");
+        const { reqResp, decryptBody, err } = await hc.ECTPost(url, Buffer.from(sendDataStr), "usertoken");
 
         if (err != null) {
             console.log("err", err);
         }
         console.log("status", reqResp.status);
-        console.log("get request reponse", decryptBody);
+        console.log("get request reponse", decryptBody.toString());
     }
 }
 
