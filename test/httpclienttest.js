@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 18:50:48
- * @LastEditTime: 2021-09-15 21:04:21
+ * @LastEditTime: 2021-09-16 16:32:56
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/test/httpclienttest.js
@@ -24,13 +24,13 @@ async function HttpRequest() {
     {
         const url = "http://127.0.0.1:8080/test/get";
         //send request with default timeout and token 'usertoken'
-        const { reqResp, decryptBody, err } = await hc.ECTGet(url, "usertoken", { timeout: 30000 });
+        const { reqResp, decryptBodyBuffer, err } = await hc.ECTGet(url, "usertoken", { timeout: 30000 });
 
         if (err != null) {
-            console.log("err", err);
+            console.error("err", err);
         }
-        console.log("status", reqResp.status);
-        console.log("get request reponse", decryptBody.toString());
+        console.log("status", reqResp&&reqResp.status);
+        console.log("get request reponse", decryptBodyBuffer&&decryptBodyBuffer.toString());
     }
 
     //post
@@ -44,13 +44,13 @@ async function HttpRequest() {
         let sendDataStr=JSON.stringify(sendData)
 
         const url = "http://127.0.0.1:8080/test/post";
-        const { reqResp, decryptBody, err } = await hc.ECTPost(url, Buffer.from(sendDataStr), "usertoken");
+        const { reqResp, decryptBodyBuffer, err } = await hc.ECTPost(url, sendDataStr, "usertoken");
 
         if (err != null) {
-            console.log("err", err);
+            console.error("err", err);
         }
-        console.log("status", reqResp.status);
-        console.log("get request reponse", decryptBody.toString());
+        console.log("status", reqResp&&reqResp.status);
+        console.log("get request reponse", decryptBodyBuffer&&decryptBodyBuffer.toString());
     }
 }
 

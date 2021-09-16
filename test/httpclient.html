@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-09-14 22:38:14
- * @LastEditTime: 2021-09-15 21:31:00
+ * @LastEditTime: 2021-09-16 16:44:04
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/test/httpclient.html
@@ -33,7 +33,7 @@
                 //send request with default timeout and token 'usertoken'
                 const {
                     reqResp,
-                    decryptBody,
+                    decryptBodyBuffer,
                     err
                 } = await hc.ECTGet(url, "usertoken", {
                     timeout: 30000
@@ -42,8 +42,10 @@
                 if (err != null) {
                     console.log("err", err);
                 }
-                console.log("status", reqResp.status);
-                console.log("get request reponse", decryptBody.toString());
+                console.log("status", reqResp&&reqResp.status);
+                console.log("get request reponse", decryptBodyBuffer&&decryptBodyBuffer.toString());
+                alert(reqResp&&reqResp.status)
+                alert(decryptBodyBuffer&&decryptBodyBuffer.toString())
             }
 
             //post
@@ -59,15 +61,17 @@
                 const url = "http://127.0.0.1:8080/test/post";
                 const {
                     reqResp,
-                    decryptBody,
+                    decryptBodyBuffer,
                     err
                 } = await hc.ECTPost(url, sendDataStr, "usertoken");
 
                 if (err != null) {
                     console.log("err", err);
                 }
-                console.log("status", reqResp.status);
-                console.log("get request reponse", decryptBody.toString());
+                console.log("status", reqResp&&reqResp.status);
+                console.log("get request reponse", decryptBodyBuffer&&decryptBodyBuffer.toString());
+                alert(reqResp&&reqResp.status)
+                alert(decryptBodyBuffer&&decryptBodyBuffer.toString())
 
             }
         }

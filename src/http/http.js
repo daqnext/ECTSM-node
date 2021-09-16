@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 16:31:18
- * @LastEditTime: 2021-09-15 22:00:02
+ * @LastEditTime: 2021-09-16 15:44:05
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/http/http.js
@@ -178,8 +178,9 @@ class ecthttp {
                 err:"encrypt response data error"
             }
         }
+        // res.setHeader("Content-Type","application/octet-stream")
         return {
-            encryptedBodyBase64:encryptedBody.toString("base64"),
+            encryptedBodyBuffer:encryptedBody,
             err:null
         }
     }

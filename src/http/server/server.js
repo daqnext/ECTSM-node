@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-12 19:39:13
- * @LastEditTime: 2021-09-15 21:42:03
+ * @LastEditTime: 2021-09-16 15:13:19
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/http/server/server.js
@@ -135,7 +135,7 @@ class ECTHttpServer {
             };
         }
 
-        const decryptBody = ecthttp.DecryptBody(Buffer.from(body,"base64"), symmetricKey);
+        const decryptBody = ecthttp.DecryptBody(body, symmetricKey);
         if (!decryptBody) {
             return {
                 symmetricKey: symmetricKey,

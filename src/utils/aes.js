@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-12 19:30:27
- * @LastEditTime: 2021-09-15 21:26:04
+ * @LastEditTime: 2021-09-16 16:04:10
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/utils/aes.js
@@ -38,7 +38,7 @@ aes.AESEncrypt=function(originBuf, keyBuf) {
         let encryptBuf=Buffer.concat([encryptBufA,encryptBufB],encryptBufA.length+encryptBufB.length)
         return encryptBuf;
     } catch (error) {
-        console.error(error);
+        console.error(error.stack);
         return null;
     }
 }
@@ -75,7 +75,7 @@ aes.AESDecrypt=function(cryptedBuf, keyBuf) {
         let buf=Buffer.concat([bufA,bufB],bufA.length+bufB.length)
         return buf;
     } catch (error) {
-        console.error(error);
+        console.error(error.stack);
         return null;
     }
 }

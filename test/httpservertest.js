@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 16:34:56
- * @LastEditTime: 2021-09-15 21:50:45
+ * @LastEditTime: 2021-09-16 16:27:10
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/test/httpservertest.js
@@ -12,6 +12,7 @@ const Koa = require("koa");
 const Router = require("koa-router");
 const koaBody = require("koa-body");
 const cors = require("koa2-cors");
+//const getRawBody = require('raw-body')
 const os = require("os");
 
 //ECTServer
@@ -30,9 +31,52 @@ function InitEctHttpServer() {
     }
 }
 
+async function GetRawBody(ctx,next){
+    let data=Buffer.from("")
+
+    ctx.rawBody=await new Promise((resolve,reject)=>{
+        ctx.req.on("data", (chunk) => {
+            //data+=chunk; // 将接收到的数据暂时保存起来
+            data=Buffer.concat([data,chunk])
+        });
+        ctx.req.on("end", () => {
+            if (data.length == 0) {
+                console.log("no body");
+                resolve(null)
+            } else {
+                //console.log(Buffer.from(data[0]));
+                resolve(data)
+                console.log("body",data); // 数据传输完，打印数据的内容
+            }
+        });
+    })
+
+    await next()
+    
+}
+
 function StartKoaServer() {
     const app = new Koa();
     const router = new Router();
+
+    //cors for html use
+    app.use(
+        cors({
+            exposeHeaders: ["Ectm_key", "ectm_key", "Ectm_time", "ectm_time", "Ectm_token", "ectm_token"],
+        })
+    );
+
+    app.use(router.routes());
+
+    // app.use(async (ctx,next)=>{
+    //     ctx.rawBody=await getRawBody(ctx.req, {
+    //         length: this.req.headers['content-length'],
+    //         encoding: contentType.parse(ctx.req).parameters.charset
+    //       })
+
+    //     await next()
+    // })
+
 
     router.get("/ectminfo", async (ctx) => {
         console.log("GET /ectminfo");
@@ -51,7 +95,7 @@ function StartKoaServer() {
         const { symmetricKey, token, err } = await hs.HandleGet(ctx.headers);
         if (err != null) {
             ctx.status = 500;
-            ctx.body = "decrypt header error";
+            ctx.body = Buffer.from("decrypt header error");
             return;
         }
 
@@ -71,24 +115,26 @@ function StartKoaServer() {
         const ECTResponseObj = ecthttp.ECTResponse(ctx.res, symmetricKey, Buffer.from(sendStr));
         if (ECTResponseObj.err != null) {
             ctx.status = 500;
-            ctx.body = ECTResponseObj.err;
+            ctx.body = Buffer.from(ECTResponseObj.err);
             return;
         }
         //console.log("response data:", ECTResponseObj.encryptedBody);
         //console.log("response data to string:", ECTResponseObj.encryptedBody.toString());
-        console.log("response data base64:", ECTResponseObj.encryptedBodyBase64);
+        console.log("response data:", ECTResponseObj.encryptedBodyBuffer);
 
-        ctx.body = ECTResponseObj.encryptedBodyBase64;
+        ctx.body = ECTResponseObj.encryptedBodyBuffer;
     });
 
-    router.post("/test/post", koaBody(), async (ctx) => {
+    router.post("/test/post",GetRawBody, async (ctx) => {
+
         //console.log("body1",ctx.request.body)
+        //console.log(ctx.rawBody);
 
         //check header
-        const v = await hs.HandlePost(ctx.headers, ctx.request.body);
+        const v = await hs.HandlePost(ctx.headers, ctx.rawBody);
         if (v == null) {
             ctx.status = 500;
-            ctx.body = "decrypt header error";
+            ctx.body = Buffer.from("decrypt header error");
             return;
         }
 
@@ -109,22 +155,15 @@ function StartKoaServer() {
         const ECTResponseObj = ecthttp.ECTResponse(ctx.res, v.symmetricKey, Buffer.from(sendStr));
         if (ECTResponseObj.err != null) {
             ctx.status = 500;
-            ctx.body = ECTResponseObj.err;
+            ctx.body = Buffer.from(ECTResponseObj.err);
             return;
         }
-        console.log("response data:", ECTResponseObj.encryptedBodyBase64);
+        console.log("response data:", ECTResponseObj.encryptedBodyBuffer);
 
-        ctx.body = ECTResponseObj.encryptedBodyBase64;
+        ctx.body = ECTResponseObj.encryptedBodyBuffer;
     });
 
-    //cors for html use
-    app.use(
-        cors({
-            exposeHeaders: ["Ectm_key", "ectm_key", "Ectm_time", "ectm_time", "Ectm_token", "ectm_token"],
-        })
-    );
-
-    app.use(router.routes());
+    
     app.listen(8080);
     console.log("server start:8080");
 }
