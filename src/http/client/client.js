@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 17:12:04
- * @LastEditTime: 2021-09-15 22:00:38
+ * @LastEditTime: 2021-09-16 16:29:35
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/http/client/client.js
@@ -49,7 +49,7 @@ class ECTHttpClient {
             this.EcsKey = encryptedEcs;
             return true;
         } catch (error) {
-            console.error(error);
+            //console.error(error);
             return false
         }
     }
@@ -62,7 +62,7 @@ class ECTHttpClient {
             if (err!=null) {
                 return {
                     reqResp: null,
-                    decryptBody: null,
+                    decryptBodyBuffer: null,
                     err: "GenEctHeader header error",
                 };
             }
@@ -75,13 +75,14 @@ class ECTHttpClient {
                 axiosConfig.timeout = 30000;
             }
 
+            axiosConfig.responseType="arraybuffer"
             const response = await axios.get(url, axiosConfig);
             //console.log(response);
 
             if (response.status != 200) {
                 return {
                     reqResp: response,
-                    decryptBody: null,
+                    decryptBodyBuffer: null,
                     err: null,
                 };
             }
@@ -92,7 +93,7 @@ class ECTHttpClient {
             if (err!=null) {
                 return {
                     reqResp: response,
-                    decryptBody: null,
+                    decryptBodyBuffer: null,
                     err: err,
                 };
             }
@@ -100,18 +101,20 @@ class ECTHttpClient {
 
             //decrypt response body
             //console.log("response data:",response.data);
-            let dataBuf = ecthttp.DecryptBody(Buffer.from(response.data,"base64"), this.SymmetricKey);
+
+            //ArrayBuffer=>Buffer
+            let dataBuf = ecthttp.DecryptBody(Buffer.from(response.data), this.SymmetricKey);
 
             return {
                 reqResp: response,
-                decryptBody: dataBuf,
+                decryptBodyBuffer: dataBuf,
                 err: null,
             };
         } catch (error) {
             return {
                 reqResp: null,
-                decryptBody: null,
-                err: error,
+                decryptBodyBuffer: null,
+                err: error.stack,
             };
         }
     }
@@ -124,7 +127,7 @@ class ECTHttpClient {
             if (err!=null) {
                 return {
                     reqResp: null,
-                    decryptBody: null,
+                    decryptBodyBuffer: null,
                     err: "GenEctHeader header error",
                 };
             }
@@ -142,7 +145,7 @@ class ECTHttpClient {
             if (!EncryptedBody) {
                 return {
                     reqResp: null,
-                    decryptBody: null,
+                    decryptBodyBuffer: null,
                     err: "EncryptBody error",
                 };
             }
@@ -150,14 +153,15 @@ class ECTHttpClient {
             //
             axiosConfig.method = "post";
             axiosConfig.url = url;
-            axiosConfig.headers["Content-Type"] = "text/plain";
-            axiosConfig.data = EncryptedBody.toString("base64");
+            axiosConfig.headers["Content-Type"] = "application/octet-stream";
+            axiosConfig.data = EncryptedBody;
+            axiosConfig.responseType="arraybuffer"
 
             const response = await axios(axiosConfig);
             if (response.status != 200) {
                 return {
                     reqResp: response,
-                    decryptBody: null,
+                    decryptBodyBuffer: null,
                     err: null,
                 };
             }
@@ -168,25 +172,26 @@ class ECTHttpClient {
             if (err!=null) {
                 return {
                     reqResp: response,
-                    decryptBody: null,
+                    decryptBodyBuffer: null,
                     err: err,
                 };
             }
         }
 
             //decrypt response body
-            let dataBuf = ecthttp.DecryptBody(Buffer.from(response.data,"base64"), this.SymmetricKey);
+            //ArrayBuffer=>Buffer
+            let dataBuf = ecthttp.DecryptBody(Buffer.from(response.data), this.SymmetricKey);
 
             return {
                 reqResp: response,
-                decryptBody: dataBuf,
+                decryptBodyBuffer: dataBuf,
                 err: null,
             };
         } catch (error) {
             return {
                 reqResp: null,
-                decryptBody: null,
-                err: error,
+                decryptBodyBuffer: null,
+                err: error.stack,
             };
         }
     }
