@@ -6,9 +6,9 @@
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/utils/ecc.js
  */
-const secp256k1= require('secp256k1')
+const secp256k1= require('secp256k1');
 const crypto = require('crypto-browserify');
-const ecies = require('./node.js');
+const ecies = require('./ecies-geth/node.js');
 
 var ecc={} 
 

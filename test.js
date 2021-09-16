@@ -1,8 +1,4 @@
-const { ecc } = require('./src/index.js')
-const crypto = require('crypto');
-const ecies = require('ecies-geth');
-
-
+const { ecc } = require('./src/index.js');
 
 (async () => {
 
@@ -26,9 +22,5 @@ const ecies = require('ecies-geth');
 
     var decryptedmsg = await ecc.ECCDecrypt(priKey, Buffer.from(encryptedmsg_base64, "base64"));
     console.log("decryptedmsg:", decryptedmsg.toString());
-
-
-  
-
 
 })();
