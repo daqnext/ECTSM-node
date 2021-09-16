@@ -1,14 +1,14 @@
 /*
  * @Author: your name
  * @Date: 2021-09-12 19:27:27
- * @LastEditTime: 2021-09-13 22:22:13
+ * @LastEditTime: 2021-09-16 21:27:30
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/utils/ecc.js
  */
 const secp256k1= require('secp256k1')
-const ecies = require('ecies-geth');
 const crypto = require('crypto-browserify');
+const ecies = require('./node.js');
 
 var ecc={} 
 
@@ -50,11 +50,13 @@ ecc.StrBase64ToPublicKey=function(pubKeyStrBase64) {
 ecc.ECCEncrypt=async function(publicKey,buffer) {
 	var encrypted = await ecies.encrypt(publicKey, buffer) ;
 	return encrypted;
+	return buffer
 }
 
 ecc.ECCDecrypt=async function(privateKey,buffer) {
 	var decrypted = await ecies.decrypt(privateKey, buffer);
 	return decrypted;
+	return buffer
 }
 
 

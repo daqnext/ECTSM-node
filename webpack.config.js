@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 19:26:37
- * @LastEditTime: 2021-09-13 20:12:05
+ * @LastEditTime: 2021-09-16 19:46:36
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/webpack.config.js
@@ -16,6 +16,9 @@ const config ={
         filename:"httpclient-min.js",
         path:path.resolve(__dirname,"dist")
     },
+  //   optimization: {
+  //     minimize: false
+  // },
     resolve: {
         // https://github.com/babel/babel/issues/8462
         fallback: {
