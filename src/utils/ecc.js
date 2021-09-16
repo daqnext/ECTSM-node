@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-12 19:27:27
- * @LastEditTime: 2021-09-16 21:27:30
+ * @LastEditTime: 2021-09-16 21:31:32
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/utils/ecc.js
@@ -50,13 +50,11 @@ ecc.StrBase64ToPublicKey=function(pubKeyStrBase64) {
 ecc.ECCEncrypt=async function(publicKey,buffer) {
 	var encrypted = await ecies.encrypt(publicKey, buffer) ;
 	return encrypted;
-	return buffer
 }
 
 ecc.ECCDecrypt=async function(privateKey,buffer) {
 	var decrypted = await ecies.decrypt(privateKey, buffer);
 	return decrypted;
-	return buffer
 }
 
 
