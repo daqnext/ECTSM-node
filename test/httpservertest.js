@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 16:34:56
- * @LastEditTime: 2021-09-16 16:27:10
+ * @LastEditTime: 2021-09-16 17:41:48
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/test/httpservertest.js
@@ -10,9 +10,7 @@
 // koa for example
 const Koa = require("koa");
 const Router = require("koa-router");
-const koaBody = require("koa-body");
 const cors = require("koa2-cors");
-//const getRawBody = require('raw-body')
 const os = require("os");
 
 //ECTServer
@@ -31,6 +29,7 @@ function InitEctHttpServer() {
     }
 }
 
+//use as middleware to get body buffer
 async function GetRawBody(ctx,next){
     let data=Buffer.from("")
 
@@ -67,15 +66,6 @@ function StartKoaServer() {
     );
 
     app.use(router.routes());
-
-    // app.use(async (ctx,next)=>{
-    //     ctx.rawBody=await getRawBody(ctx.req, {
-    //         length: this.req.headers['content-length'],
-    //         encoding: contentType.parse(ctx.req).parameters.charset
-    //       })
-
-    //     await next()
-    // })
 
 
     router.get("/ectminfo", async (ctx) => {
@@ -125,10 +115,9 @@ function StartKoaServer() {
         ctx.body = ECTResponseObj.encryptedBodyBuffer;
     });
 
+    //user GetRawBody to get body buffer
+    //this example in ctx.rawBody
     router.post("/test/post",GetRawBody, async (ctx) => {
-
-        //console.log("body1",ctx.request.body)
-        //console.log(ctx.rawBody);
 
         //check header
         const v = await hs.HandlePost(ctx.headers, ctx.rawBody);
