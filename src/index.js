@@ -10,5 +10,6 @@
 const {ECTHttpServer} = require("./http/server/server")
 const {ECTHttpClient} = require("./http/client/client")
 const {ecthttp} = require("./http/http")
+const {ecc} = require("./utils/ecc")
 
-module.exports= {ECTHttpServer,ECTHttpClient,ecthttp}
+module.exports= {ECTHttpServer,ECTHttpClient,ecthttp,ecc}
