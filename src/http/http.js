@@ -1,16 +1,88 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 16:31:18
- * @LastEditTime: 2021-09-16 15:44:05
+ * @LastEditTime: 2021-09-17 14:56:42
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/http/http.js
  */
 
-const { aes } = require("../utils/aes");
+const {aes} =require("../utils/aes")
 
 const allowRequestTimeGapSec = 180;
 const allowServerClientTimeGap = 30;
+
+class ECTResponse{
+    Rs
+	DecryptedBody
+	Err
+
+    constructor(rs,decryptedBody,err){
+        this.Rs=rs
+        this.DecryptedBody=decryptedBody
+        this.Err=err
+    }
+
+    ToString(){
+        if (!this.DecryptedBody) {
+            return null
+        }
+        return this.DecryptedBody.toString()
+    }
+
+    ToJson(){
+        if (!this.DecryptedBody) {
+            return null
+        }
+        try {
+            return JSON.parse(this.DecryptedBody.toString())
+        } catch (error) {
+            return null
+        }
+    }
+    
+}
+
+class ECTRequest{
+    Token
+    SymmetricKey
+    DecryptedBody
+    Err
+
+    constructor(token,symmetricKey,decryptedBody,err){
+        this.Token=token
+        this.SymmetricKey=symmetricKey
+        this.DecryptedBody=decryptedBody
+        this.Err=err
+    }
+
+    GetToken(){
+        return this.Token.toString()
+    }
+
+    GetSymmetricKey(){
+        return this.SymmetricKey.toString()
+    }
+
+    ToString(){
+        if (!this.DecryptedBody) {
+            return null
+        }
+        return this.DecryptedBody.toString()
+    }
+
+    ToJson(){
+        if (!this.DecryptedBody) {
+            return null
+        }
+        try {
+            return JSON.parse(this.DecryptedBody.toString())
+        } catch (error) {
+            return null
+        }
+    }
+}
+
 
 class ecthttp {
     //return {header,err}
@@ -154,37 +226,6 @@ class ecthttp {
         return bufDecrypted;
     }
 
-    static ECTResponse(res, symmetricKey, dataBuffer) {
-        const v = this.EncryptAndSetECTMHeader(null, symmetricKey, null,res);
-        if (v.err!=null) {
-            return {
-                encryptedBody:null,
-                err:"encrypt response header error"
-            }
-        }
-
-        // if (typeof dataStr !="string") {
-        //     return {
-        //         encryptedBody:null,
-        //         err:"data must be a string"
-        //     }
-        // }
-        
-        //body encrypt
-        const encryptedBody = this.EncryptBody(dataBuffer, symmetricKey);
-        if (!encryptedBody) {
-            return {
-                encryptedBody:null,
-                err:"encrypt response data error"
-            }
-        }
-        // res.setHeader("Content-Type","application/octet-stream")
-        return {
-            encryptedBodyBuffer:encryptedBody,
-            err:null
-        }
-    }
-
 }
 
-module.exports = { ecthttp, allowRequestTimeGapSec, allowServerClientTimeGap };
+module.exports = { ecthttp, allowRequestTimeGapSec, allowServerClientTimeGap ,ECTResponse,ECTRequest};

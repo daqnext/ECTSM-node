@@ -1,12 +1,11 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 16:34:56
- * @LastEditTime: 2021-09-16 17:41:48
+ * @LastEditTime: 2021-09-17 15:29:21
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/test/httpservertest.js
  */
-
 // koa for example
 const Koa = require("koa");
 const Router = require("koa-router");
@@ -14,7 +13,7 @@ const cors = require("koa2-cors");
 const os = require("os");
 
 //ECTServer
-const { ECTHttpServer, ecthttp } = require("../src/index");
+const { ECTHttpServer } = require("../src/index");
 
 const privateKeyBase64Str = "bhbb4EC96zx2uUsWDtSYivzaZUzdeDKMfn+dSV9VwUI=";
 const publicKeyBase64Str = "BJJlxQFcPuVTjaB/PvbqmN0py98C2iScUQlvpRUm+kpAgqJmnofCely42Hczgb7cqwTZtFTfPwm2ImdmDtvFMH4=";
@@ -30,28 +29,27 @@ function InitEctHttpServer() {
 }
 
 //use as middleware to get body buffer
-async function GetRawBody(ctx,next){
-    let data=Buffer.from("")
+async function GetRawBody(ctx, next) {
+    let data = Buffer.from("");
 
-    ctx.rawBody=await new Promise((resolve,reject)=>{
+    ctx.rawBody = await new Promise((resolve, reject) => {
         ctx.req.on("data", (chunk) => {
             //data+=chunk; // 将接收到的数据暂时保存起来
-            data=Buffer.concat([data,chunk])
+            data = Buffer.concat([data, chunk]);
         });
         ctx.req.on("end", () => {
             if (data.length == 0) {
                 console.log("no body");
-                resolve(null)
+                resolve(null);
             } else {
                 //console.log(Buffer.from(data[0]));
-                resolve(data)
-                console.log("body",data); // 数据传输完，打印数据的内容
+                resolve(data);
+                console.log("body", data); // 数据传输完，打印数据的内容
             }
         });
-    })
+    });
 
-    await next()
-    
+    await next();
 }
 
 function StartKoaServer() {
@@ -67,7 +65,6 @@ function StartKoaServer() {
 
     app.use(router.routes());
 
-
     router.get("/ectminfo", async (ctx) => {
         console.log("GET /ectminfo");
 
@@ -79,11 +76,8 @@ function StartKoaServer() {
 
     router.get("/test/get", async (ctx) => {
         //check header
-        // symmetricKey: null,
-        //         token: null,
-        //         err: "ecs not exist",
-        const { symmetricKey, token, err } = await hs.HandleGet(ctx.headers);
-        if (err != null) {
+        const ectReq = await hs.HandleGet(ctx.headers);
+        if (ectReq.Err != null) {
             ctx.status = 500;
             ctx.body = Buffer.from("decrypt header error");
             return;
@@ -91,8 +85,8 @@ function StartKoaServer() {
 
         //do something
         //...
-        console.log("symmetricKey:", symmetricKey.toString());
-        console.log("token:", token.toString());
+        console.log("symmetricKey:", ectReq.GetSymmetricKey());
+        console.log("token:", ectReq.GetToken());
 
         //responseData example
         const data = {
@@ -100,16 +94,14 @@ function StartKoaServer() {
             Msg: "post success",
             Data: null,
         };
-        const sendStr = JSON.stringify(data);
 
-        const ECTResponseObj = ecthttp.ECTResponse(ctx.res, symmetricKey, Buffer.from(sendStr));
+        const ECTResponseObj = ECTHttpServer.ECTSendBack(ctx.res, ectReq.SymmetricKey, data);
         if (ECTResponseObj.err != null) {
             ctx.status = 500;
             ctx.body = Buffer.from(ECTResponseObj.err);
             return;
         }
-        //console.log("response data:", ECTResponseObj.encryptedBody);
-        //console.log("response data to string:", ECTResponseObj.encryptedBody.toString());
+
         console.log("response data:", ECTResponseObj.encryptedBodyBuffer);
 
         ctx.body = ECTResponseObj.encryptedBodyBuffer;
@@ -117,11 +109,10 @@ function StartKoaServer() {
 
     //user GetRawBody to get body buffer
     //this example in ctx.rawBody
-    router.post("/test/post",GetRawBody, async (ctx) => {
-
+    router.post("/test/post", GetRawBody, async (ctx) => {
         //check header
-        const v = await hs.HandlePost(ctx.headers, ctx.rawBody);
-        if (v == null) {
+        const ectReq = await hs.HandlePost(ctx.headers, ctx.rawBody);
+        if (ectReq.Err != null) {
             ctx.status = 500;
             ctx.body = Buffer.from("decrypt header error");
             return;
@@ -129,9 +120,11 @@ function StartKoaServer() {
 
         //do something
         //...
-        console.log("symmetricKey:", v.symmetricKey.toString());
-        console.log("token:", v.token.toString());
-        console.log("decryptedBody:", v.decryptedBody.toString());
+        console.log("symmetricKey:", ectReq.GetSymmetricKey());
+        console.log("token:", ectReq.GetToken());
+        console.log("decryptedBody string:", ectReq.ToString());
+        console.log("decryptedBody json:", ectReq.ToJson());
+
 
         //responseData example
         const data = {
@@ -139,20 +132,19 @@ function StartKoaServer() {
             Msg: "post success",
             Data: null,
         };
-        const sendStr = JSON.stringify(data);
 
-        const ECTResponseObj = ecthttp.ECTResponse(ctx.res, v.symmetricKey, Buffer.from(sendStr));
+        const ECTResponseObj = ECTHttpServer.ECTSendBack(ctx.res, ectReq.SymmetricKey, data);
         if (ECTResponseObj.err != null) {
             ctx.status = 500;
             ctx.body = Buffer.from(ECTResponseObj.err);
             return;
         }
+
         console.log("response data:", ECTResponseObj.encryptedBodyBuffer);
 
         ctx.body = ECTResponseObj.encryptedBodyBuffer;
     });
 
-    
     app.listen(8080);
     console.log("server start:8080");
 }

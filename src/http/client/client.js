@@ -1,16 +1,18 @@
 /*
  * @Author: your name
- * @Date: 2021-09-13 17:12:04
- * @LastEditTime: 2021-09-16 16:29:35
+ * @Date: 2021-09-13 10:25:08
+ * @LastEditTime: 2021-09-17 15:31:49
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
- * @FilePath: /ECTSM-node/src/http/client/client.js
+ * @FilePath: /ECT-http-node/src/http/client/client.ts
  */
 
-const axios = require("axios");
-const { utils } = require("../../utils/common");
-const { ecc } = require("../../utils/ecc");
-const { ecthttp, allowServerClientTimeGap } = require("../http");
+const axios =require("axios")
+const {utils} =require("../../utils/common")
+const { ecc } =require("../../utils/ecc");
+const { ecthttp, allowServerClientTimeGap, ECTResponse } =require("../http");
+
+const DefaultTimeout = 30000;
 
 class ECTHttpClient {
     PublicKeyUrl;
@@ -50,7 +52,7 @@ class ECTHttpClient {
             return true;
         } catch (error) {
             //console.error(error);
-            return false
+            return false;
         }
     }
 
@@ -58,13 +60,9 @@ class ECTHttpClient {
     async ECTGet(url, token = "", axiosConfig = {}) {
         try {
             //header
-            const {header,err} = ecthttp.EncryptAndSetECTMHeader(this.EcsKey, this.SymmetricKey,Buffer.from(token));
-            if (err!=null) {
-                return {
-                    reqResp: null,
-                    decryptBodyBuffer: null,
-                    err: "GenEctHeader header error",
-                };
+            const { header, err } = ecthttp.EncryptAndSetECTMHeader(this.EcsKey, this.SymmetricKey, Buffer.from(token));
+            if (err != null) {
+                return new ECTResponse(null, null, "GenEctHeader header error");
             }
 
             const headerObj = {};
@@ -72,32 +70,20 @@ class ECTHttpClient {
             axiosConfig.headers = headerObj;
 
             if (!axiosConfig.timeout) {
-                axiosConfig.timeout = 30000;
+                axiosConfig.timeout = DefaultTimeout;
             }
 
-            axiosConfig.responseType="arraybuffer"
+            axiosConfig.responseType = "arraybuffer";
             const response = await axios.get(url, axiosConfig);
             //console.log(response);
 
-            if (response.status != 200) {
-                return {
-                    reqResp: response,
-                    decryptBodyBuffer: null,
-                    err: null,
-                };
-            }
-
             //check response timestamp
             {
-            const {err} = ecthttp.DecryptECTMHeader(response.headers, this.SymmetricKey);
-            if (err!=null) {
-                return {
-                    reqResp: response,
-                    decryptBodyBuffer: null,
-                    err: err,
-                };
+                const { err } = ecthttp.DecryptECTMHeader(response.headers, this.SymmetricKey);
+                if (err != null) {
+                    return new ECTResponse(response, null, err);
+                }
             }
-        }
 
             //decrypt response body
             //console.log("response data:",response.data);
@@ -105,31 +91,19 @@ class ECTHttpClient {
             //ArrayBuffer=>Buffer
             let dataBuf = ecthttp.DecryptBody(Buffer.from(response.data), this.SymmetricKey);
 
-            return {
-                reqResp: response,
-                decryptBodyBuffer: dataBuf,
-                err: null,
-            };
+            return new ECTResponse(response, dataBuf, null);
         } catch (error) {
-            return {
-                reqResp: null,
-                decryptBodyBuffer: null,
-                err: error.stack,
-            };
+            return new ECTResponse(null, null, error.stack);
         }
     }
 
     // return(axios response,decryptBody,err)
-    async ECTPost(url, dataString, token = "", axiosConfig = {}) {
+    async ECTPost(url, data, token = "", axiosConfig = {}) {
         try {
             //header
-            const {header,err} = ecthttp.EncryptAndSetECTMHeader(this.EcsKey, this.SymmetricKey,Buffer.from(token));
-            if (err!=null) {
-                return {
-                    reqResp: null,
-                    decryptBodyBuffer: null,
-                    err: "GenEctHeader header error",
-                };
+            const { header, err } = ecthttp.EncryptAndSetECTMHeader(this.EcsKey, this.SymmetricKey, Buffer.from(token));
+            if (err != null) {
+                return new ECTResponse(null, null, "GenEctHeader header error");
             }
 
             const headerObj = {};
@@ -137,17 +111,34 @@ class ECTHttpClient {
             axiosConfig.headers = headerObj;
 
             if (!axiosConfig.timeout) {
-                axiosConfig.timeout = 30000;
+                axiosConfig.timeout = DefaultTimeout;
             }
-            
-            
-            const EncryptedBody= ecthttp.EncryptBody(Buffer.from(dataString), this.SymmetricKey)
-            if (!EncryptedBody) {
-                return {
-                    reqResp: null,
-                    decryptBodyBuffer: null,
-                    err: "EncryptBody error",
-                };
+
+            let EncryptedBody;
+            let toEncrypt;
+
+            if (!data) {
+                toEncrypt = null;
+                EncryptedBody = null;
+            } else {
+                switch (typeof data) {
+                    case "string":
+                        toEncrypt = Buffer.from(data);
+                        break;
+                    default:
+                        if (Buffer.isBuffer(data)) {
+                            toEncrypt = data;
+                        } else {
+                            toEncrypt = Buffer.from(JSON.stringify(data));
+                        }
+                        break;
+                }
+                
+                //body encrypt
+                EncryptedBody = ecthttp.EncryptBody(toEncrypt, this.SymmetricKey);
+                if (!EncryptedBody) {
+                    return new ECTResponse(null, null, "encrypt response data error");
+                }
             }
 
             //
@@ -155,44 +146,25 @@ class ECTHttpClient {
             axiosConfig.url = url;
             axiosConfig.headers["Content-Type"] = "application/octet-stream";
             axiosConfig.data = EncryptedBody;
-            axiosConfig.responseType="arraybuffer"
+            axiosConfig.responseType = "arraybuffer";
 
             const response = await axios(axiosConfig);
-            if (response.status != 200) {
-                return {
-                    reqResp: response,
-                    decryptBodyBuffer: null,
-                    err: null,
-                };
-            }
 
             //check response timestamp
             {
-            const {err} = ecthttp.DecryptECTMHeader(response.headers, this.SymmetricKey);
-            if (err!=null) {
-                return {
-                    reqResp: response,
-                    decryptBodyBuffer: null,
-                    err: err,
-                };
+                const { err } = ecthttp.DecryptECTMHeader(response.headers, this.SymmetricKey);
+                if (err != null) {
+                    return new ECTResponse(response, null, err);
+                }
             }
-        }
 
             //decrypt response body
             //ArrayBuffer=>Buffer
             let dataBuf = ecthttp.DecryptBody(Buffer.from(response.data), this.SymmetricKey);
 
-            return {
-                reqResp: response,
-                decryptBodyBuffer: dataBuf,
-                err: null,
-            };
+            return new ECTResponse(response, dataBuf, null);
         } catch (error) {
-            return {
-                reqResp: null,
-                decryptBodyBuffer: null,
-                err: error.stack,
-            };
+            return new ECTResponse(null, null, error.stack);
         }
     }
 }

@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-09-12 19:27:27
- * @LastEditTime: 2021-09-16 17:42:35
+ * @LastEditTime: 2021-09-17 15:48:39
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/README.md
@@ -27,27 +27,25 @@ js version implementation of ECTSM
         async function HttpRequest() {
             //new ecthttpclient instance as a global single instance
             //publicKeyUrl endpoint to get unix time and public key form server
-            let success=await hc.Init("http://127.0.0.1:8080/ectminfo");
-            if (success == false) {
+            await hc.Init("http://127.0.0.1:8080/ectminfo");
+            if (hc == null) {
                 console.error("new ECTHttpClient error");
-                return
             }
 
             //get
             {
                 const url = "http://127.0.0.1:8080/test/get";
                 //send request with default timeout and token 'usertoken'
-                const { reqResp, decryptBodyBuffer, err } = await hc.ECTGet(url, "usertoken", {
+                const result = await hc.ECTGet(url, "usertoken", {
                     timeout: 30000
                 });
-
-                if (err != null) {
-                    console.log("err", err);
-                }else{
-                    console.log("status", reqResp.status);
-                    console.log("get request reponse", decryptBodyBuffer.toString());
+                if (result.Err != null) {
+                    console.log("err", result.Err);
+                } else {
+                    console.log("status", result.Rs.status);
+                    console.log("get request reponse string", result.ToString());
+                    console.log("get request reponse json", result.ToJson());
                 }
-                
             }
 
             //post
@@ -60,14 +58,14 @@ js version implementation of ECTSM
                 };
 
                 const url = "http://127.0.0.1:8080/test/post";
-                const { reqResp, decryptBodyBuffer, err} = await hc.ECTPost(url, sendData, "usertoken");
-
-                if (err != null) {
-                    console.log("err", err);
-                }else{
-                    console.log("status", reqResp.status);
-                    console.log("get request reponse", decryptBodyBuffer.toString());
-                }      
+                const result = await hc.ECTPost(url, sendData, "token");
+                if (result.Err != null) {
+                    console.log("err", result.Err);
+                } else {
+                    console.log("status", result.Rs.status);
+                    console.log("get request reponse string", result.ToString());
+                    console.log("get request reponse json", result.ToJson());
+                }
             }
         }
 
@@ -86,29 +84,28 @@ npm install --save ectsm-node
 ### client example
 ```js
 const { ECTHttpClient } = require("ectsm-node");
-const hc = new ECTHttpClient();
 
 async function HttpRequest() {
     //new ecthttpclient instance as a global single instance
     //publicKeyUrl endpoint to get unix time and public key form server
-
-    let success=await hc.Init("http://127.0.0.1:8080/ectminfo");
-    if (success == false) {
+    const hc = new ECTHttpClient();
+    await hc.Init("http://127.0.0.1:8080/ectminfo");
+    if (hc == null) {
         console.error("new ECTHttpClient error");
-        return
     }
 
     //get
     {
         const url = "http://127.0.0.1:8080/test/get";
         //send request with default timeout and token 'usertoken'
-        const { reqResp, decryptBodyBuffer, err } = await hc.ECTGet(url, "usertoken", { timeout: 30000 });
-
-        if (err != null) {
-            console.log("err", err);
+        const result = await hc.ECTGet(url, "usertoken", { timeout: 30000 });
+        if (result.Err != null) {
+            console.log("err", result.Err);
+        } else {
+            console.log("status", result.Rs.status);
+            console.log("get request reponse string", result.ToString());
+            console.log("get request reponse json", result.ToJson());
         }
-        console.log("status", reqResp.status);
-        console.log("get request reponse", decryptBodyBuffer.toString());
     }
 
     //post
@@ -119,16 +116,16 @@ async function HttpRequest() {
             Phone: "123456789",
             Age: 18,
         };
-        let sendDataStr=JSON.stringify(sendData)
 
         const url = "http://127.0.0.1:8080/test/post";
-        const { reqResp, decryptBodyBuffer, err } = await hc.ECTPost(url, Buffer.from(sendDataStr), "usertoken");
-
-        if (err != null) {
-            console.log("err", err);
+        const result = await hc.ECTPost(url, sendData, "token");
+        if (result.Err != null) {
+            console.log("err", result.Err);
+        } else {
+            console.log("status", result.Rs.status);
+            console.log("get request reponse string", result.ToString());
+            console.log("get request reponse json", result.ToJson());
         }
-        console.log("status", reqResp.status);
-        console.log("get request reponse", decryptBodyBuffer.toString());
     }
 }
 
@@ -160,28 +157,27 @@ function InitEctHttpServer() {
 }
 
 //use as middleware to get body buffer
-async function GetRawBody(ctx,next){
-    let data=Buffer.from("")
+async function GetRawBody(ctx, next) {
+    let data = Buffer.from("");
 
-    ctx.rawBody=await new Promise((resolve,reject)=>{
+    ctx.rawBody = await new Promise((resolve, reject) => {
         ctx.req.on("data", (chunk) => {
             //data+=chunk; // 将接收到的数据暂时保存起来
-            data=Buffer.concat([data,chunk])
+            data = Buffer.concat([data, chunk]);
         });
         ctx.req.on("end", () => {
             if (data.length == 0) {
                 console.log("no body");
-                resolve(null)
+                resolve(null);
             } else {
                 //console.log(Buffer.from(data[0]));
-                resolve(data)
-                console.log("body",data); // 数据传输完，打印数据的内容
+                resolve(data);
+                console.log("body", data); // 数据传输完，打印数据的内容
             }
         });
-    })
+    });
 
-    await next()
-    
+    await next();
 }
 
 function StartKoaServer() {
@@ -197,7 +193,6 @@ function StartKoaServer() {
 
     app.use(router.routes());
 
-
     router.get("/ectminfo", async (ctx) => {
         console.log("GET /ectminfo");
 
@@ -209,11 +204,8 @@ function StartKoaServer() {
 
     router.get("/test/get", async (ctx) => {
         //check header
-        // symmetricKey: null,
-        //         token: null,
-        //         err: "ecs not exist",
-        const { symmetricKey, token, err } = await hs.HandleGet(ctx.headers);
-        if (err != null) {
+        const ectReq = await hs.HandleGet(ctx.headers);
+        if (ectReq.Err != null) {
             ctx.status = 500;
             ctx.body = Buffer.from("decrypt header error");
             return;
@@ -221,8 +213,8 @@ function StartKoaServer() {
 
         //do something
         //...
-        console.log("symmetricKey:", symmetricKey.toString());
-        console.log("token:", token.toString());
+        console.log("symmetricKey:", ectReq.GetSymmetricKey());
+        console.log("token:", ectReq.GetToken());
 
         //responseData example
         const data = {
@@ -230,16 +222,14 @@ function StartKoaServer() {
             Msg: "post success",
             Data: null,
         };
-        const sendStr = JSON.stringify(data);
 
-        const ECTResponseObj = ecthttp.ECTResponse(ctx.res, symmetricKey, Buffer.from(sendStr));
+        const ECTResponseObj = ECTHttpServer.ECTSendBack(ctx.res, ectReq.SymmetricKey, data);
         if (ECTResponseObj.err != null) {
             ctx.status = 500;
             ctx.body = Buffer.from(ECTResponseObj.err);
             return;
         }
-        //console.log("response data:", ECTResponseObj.encryptedBody);
-        //console.log("response data to string:", ECTResponseObj.encryptedBody.toString());
+
         console.log("response data:", ECTResponseObj.encryptedBodyBuffer);
 
         ctx.body = ECTResponseObj.encryptedBodyBuffer;
@@ -247,11 +237,10 @@ function StartKoaServer() {
 
     //user GetRawBody to get body buffer
     //this example in ctx.rawBody
-    router.post("/test/post",GetRawBody, async (ctx) => {
-
+    router.post("/test/post", GetRawBody, async (ctx) => {
         //check header
-        const v = await hs.HandlePost(ctx.headers, ctx.rawBody);
-        if (v == null) {
+        const ectReq = await hs.HandlePost(ctx.headers, ctx.rawBody);
+        if (ectReq.Err != null) {
             ctx.status = 500;
             ctx.body = Buffer.from("decrypt header error");
             return;
@@ -259,9 +248,11 @@ function StartKoaServer() {
 
         //do something
         //...
-        console.log("symmetricKey:", v.symmetricKey.toString());
-        console.log("token:", v.token.toString());
-        console.log("decryptedBody:", v.decryptedBody.toString());
+        console.log("symmetricKey:", ectReq.GetSymmetricKey());
+        console.log("token:", ectReq.GetToken());
+        console.log("decryptedBody string:", ectReq.ToString());
+        console.log("decryptedBody json:", ectReq.ToJson());
+
 
         //responseData example
         const data = {
@@ -269,20 +260,19 @@ function StartKoaServer() {
             Msg: "post success",
             Data: null,
         };
-        const sendStr = JSON.stringify(data);
 
-        const ECTResponseObj = ecthttp.ECTResponse(ctx.res, v.symmetricKey, Buffer.from(sendStr));
+        const ECTResponseObj = ECTHttpServer.ECTSendBack(ctx.res, ectReq.SymmetricKey, data);
         if (ECTResponseObj.err != null) {
             ctx.status = 500;
             ctx.body = Buffer.from(ECTResponseObj.err);
             return;
         }
+
         console.log("response data:", ECTResponseObj.encryptedBodyBuffer);
 
         ctx.body = ECTResponseObj.encryptedBodyBuffer;
     });
 
-    
     app.listen(8080);
     console.log("server start:8080");
 }
