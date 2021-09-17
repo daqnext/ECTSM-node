@@ -91,7 +91,7 @@ function StartKoaServer() {
         //responseData example
         const data = {
             Status: 0,
-            Msg: "post success",
+            Msg: "get success",
             Data: null,
         };
 
