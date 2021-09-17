@@ -75,8 +75,6 @@ class ECTHttpClient {
 
             axiosConfig.responseType = "arraybuffer";
             const response = await axios.get(url, axiosConfig);
-            //console.log(response);
-
             //check response timestamp
             {
                 const { err } = ecthttp.DecryptECTMHeader(response.headers, this.SymmetricKey);
@@ -86,9 +84,6 @@ class ECTHttpClient {
             }
 
             //decrypt response body
-            //console.log("response data:",response.data);
-
-            //ArrayBuffer=>Buffer
             let dataBuf = ecthttp.DecryptBody(Buffer.from(response.data), this.SymmetricKey);
 
             return new ECTResponse(response, dataBuf, null);

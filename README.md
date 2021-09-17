@@ -36,9 +36,7 @@ js version implementation of ECTSM
             {
                 const url = "http://127.0.0.1:8080/test/get";
                 //send request with default timeout and token 'usertoken'
-                const result = await hc.ECTGet(url, "usertoken", {
-                    timeout: 30000
-                });
+                const result = await hc.ECTGet(url, "usertoken");
                 if (result.Err != null) {
                     console.log("err", result.Err);
                 } else {
