@@ -57,11 +57,17 @@ class ECTRequest{
     }
 
     GetToken(){
-        return this.Token.toString()
+        if(!this.Token){
+            return this.Token.toString();
+        }
+        return null;
     }
 
     GetSymmetricKey(){
-        return this.SymmetricKey.toString()
+        if(!this.SymmetricKey){
+            return this.SymmetricKey.toString()
+        }
+        return null;
     }
 
     ToString(){
