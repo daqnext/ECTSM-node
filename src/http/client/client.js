@@ -58,6 +58,8 @@ class ECTHttpClient {
 
     // return(axios response,decryptBody,err)
     async ECTGet(url, token = "", axiosConfig = {}) {
+        if(token===null){ token=""}
+
         try {
             //header
             const { header, err } = ecthttp.EncryptAndSetECTMHeader(this.EcsKey, this.SymmetricKey, Buffer.from(token));
@@ -94,6 +96,7 @@ class ECTHttpClient {
 
     // return(axios response,decryptBody,err)
     async ECTPost(url, data, token = "", axiosConfig = {}) {
+        if(token===null){ token=""}
         try {
             //header
             const { header, err } = ecthttp.EncryptAndSetECTMHeader(this.EcsKey, this.SymmetricKey, Buffer.from(token));
