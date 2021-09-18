@@ -58,33 +58,33 @@ class ECTRequest{
 
     GetToken(){
         if(!this.Token){
-            return this.Token.toString();
+            return null;
         }
-        return null;
+        return this.Token.toString();
     }
 
     GetSymmetricKey(){
         if(!this.SymmetricKey){
-            return this.SymmetricKey.toString()
+             return null;
         }
-        return null;
+        return this.SymmetricKey.toString();
     }
 
     ToString(){
         if (!this.DecryptedBody) {
             return null
         }
-        return this.DecryptedBody.toString()
+        return this.DecryptedBody.toString();
     }
 
     ToJson(){
         if (!this.DecryptedBody) {
-            return null
+            return null;
         }
         try {
-            return JSON.parse(this.DecryptedBody.toString())
+            return JSON.parse(this.DecryptedBody.toString());
         } catch (error) {
-            return null
+            return null;
         }
     }
 }
@@ -97,7 +97,7 @@ class ecthttp {
         //set the ecs key only for request to server
         if (EcsKey && EcsKey.length != 0) {
             if (res) {
-                res.setHeader("ectm_key",EcsKey.toString("base64"))
+                res.setHeader("ectm_key",EcsKey.toString("base64"));
             }else{
                 header["ectm_key"]= EcsKey.toString("base64");
             }
@@ -114,7 +114,7 @@ class ecthttp {
             };
         }
         if (res) {
-            res.setHeader("ectm_time",encrypted_time_byte.toString("base64"))
+            res.setHeader("ectm_time",encrypted_time_byte.toString("base64"));
         }else{
             header["ectm_time"]=encrypted_time_byte.toString("base64");
         }
@@ -130,7 +130,7 @@ class ecthttp {
                 };
             }
             if (res) {
-                res.setHeader("ectm_token",encrypted_token_byte.toString("base64"))
+                res.setHeader("ectm_token",encrypted_token_byte.toString("base64"));
             }else{
                 header["ectm_token"]=encrypted_token_byte.toString("base64");
             }
