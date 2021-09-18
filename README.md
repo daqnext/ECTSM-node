@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-09-12 19:27:27
- * @LastEditTime: 2021-09-17 15:48:39
+ * @LastEditTime: 2021-09-18 08:43:38
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/README.md
@@ -160,7 +160,7 @@ async function GetRawBody(ctx, next) {
 
     ctx.rawBody = await new Promise((resolve, reject) => {
         ctx.req.on("data", (chunk) => {
-            //data+=chunk; // 将接收到的数据暂时保存起来
+            //data+=chunk; 
             data = Buffer.concat([data, chunk]);
         });
         ctx.req.on("end", () => {
@@ -168,9 +168,8 @@ async function GetRawBody(ctx, next) {
                 console.log("no body");
                 resolve(null);
             } else {
-                //console.log(Buffer.from(data[0]));
                 resolve(data);
-                console.log("body", data); // 数据传输完，打印数据的内容
+                console.log("body", data);
             }
         });
     });

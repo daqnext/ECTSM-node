@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 16:34:56
- * @LastEditTime: 2021-09-17 15:29:21
+ * @LastEditTime: 2021-09-18 08:42:48
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/test/httpservertest.js
@@ -34,7 +34,6 @@ async function GetRawBody(ctx, next) {
 
     ctx.rawBody = await new Promise((resolve, reject) => {
         ctx.req.on("data", (chunk) => {
-            //data+=chunk; // 将接收到的数据暂时保存起来
             data = Buffer.concat([data, chunk]);
         });
         ctx.req.on("end", () => {
@@ -42,9 +41,8 @@ async function GetRawBody(ctx, next) {
                 console.log("no body");
                 resolve(null);
             } else {
-                //console.log(Buffer.from(data[0]));
                 resolve(data);
-                console.log("body", data); // 数据传输完，打印数据的内容
+                console.log("body", data); 
             }
         });
     });
