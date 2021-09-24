@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 16:31:18
- * @LastEditTime: 2021-09-17 14:56:42
+ * @LastEditTime: 2021-09-24 09:30:49
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECTSM-node/src/http/http.js
@@ -134,6 +134,11 @@ class ecthttp {
             }else{
                 header["ectm_token"]=encrypted_token_byte.toString("base64");
             }
+        }
+        if (res) {
+            res.setHeader("Cache-Control","no-store");
+        }else{
+            header["Cache-Control"]="no-store";
         }
         return {
             header:header,

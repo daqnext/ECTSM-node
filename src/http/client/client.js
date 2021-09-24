@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-09-13 10:25:08
- * @LastEditTime: 2021-09-17 15:31:49
+ * @LastEditTime: 2021-09-24 09:23:16
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /ECT-http-node/src/http/client/client.ts
@@ -76,7 +76,17 @@ class ECTHttpClient {
             }
 
             axiosConfig.responseType = "arraybuffer";
+            axiosConfig.validateStatus=  (status)=> {
+                return true;
+              }
             const response = await axios.get(url, axiosConfig);
+
+            if (response.status!=200) {
+                const content=Buffer.from(response.data)
+                const errStr="response status error,status code:"+response.status+",content:"+content.toString()
+                return new ECTResponse(response, null, errStr);
+            }
+            
             //check response timestamp
             {
                 const { err } = ecthttp.DecryptECTMHeader(response.headers, this.SymmetricKey);
@@ -145,8 +155,17 @@ class ECTHttpClient {
             axiosConfig.headers["Content-Type"] = "application/octet-stream";
             axiosConfig.data = EncryptedBody;
             axiosConfig.responseType = "arraybuffer";
+            axiosConfig.validateStatus=  (status)=> {
+                return true;
+              }
 
             const response = await axios(axiosConfig);
+
+            if (response.status!=200) {
+                const content=Buffer.from(response.data)
+                const errStr="response status error,status code:"+response.status+",content:"+content.toString()
+                return new ECTResponse(response, null, errStr);
+            }
 
             //check response timestamp
             {
